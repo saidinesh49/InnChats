@@ -5,18 +5,14 @@ import { inject } from '@angular/core';
 import { map, take } from 'rxjs/operators';
 
 export const authGuard: CanActivateFn = (route, state) => {
-  const authService = inject(AuthService);
-  const router = inject(Router);
+  // const authService = inject(AuthService);
+  // const router = inject(Router);
 
-  return authService.getCurrentUser$.pipe(
-    take(1),
-    map((user: User) => {
-      const isAuthenticated = !!user?.username;
-      if (!isAuthenticated) {
-        router.navigate(['/auth/login']);
-        return false;
-      }
-      return true;
-    })
-  );
+  // const data = authService.getCurrentUser$();
+  // const isAuthenticated = !!data?.username;
+  // if (!isAuthenticated) {
+  //   router.navigate(['/auth/login']);
+  //   return false;
+  // }
+  return true;
 };

@@ -9,7 +9,7 @@ import { SignupComponent } from './components/auth/signup/signup.component';
 
 const routes: Routes = [
   { path: '', component: AppComponent },
-  { path: 'home', component: HomePageComponent, canActivate: [authGuard] },
+  { path: 'home', component: HomePageComponent },
   {
     path: 'auth',
     component: AuthComponent,

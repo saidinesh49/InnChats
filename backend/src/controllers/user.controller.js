@@ -10,15 +10,16 @@ const generateAccessAndRefreshToken = asyncHandler(async (userId) => {
       "UserId is required to generate access and refresh token"
     );
   }
+  console.log("genreation stared");
   const user = await User.findOne({ _id: userId });
   const accessToken = await user.generateAccessToken();
   const refreshToken = await user.generateRefreshToken();
   user.refreshToken = refreshToken;
 
-  console.log(accessToken, refreshToken);
-
   await user.save({ validateBeforeSave: false });
-  return { accessToken, refreshToken };
+  const tokens = { accessToken, refreshToken };
+  console.log("at generation", accessToken);
+  return tokens;
 });
 
 const login = asyncHandler(async (req, res) => {
@@ -83,7 +84,7 @@ const signup = asyncHandler(async (req, res) => {
 
   await newUser.save();
 
-  const createdUser = await User.findOne({ _id: newUser?._id }).select(
+  const createdUser = await User.findById(newUser._id).select(
     "-password -refreshToken"
   );
 
@@ -95,21 +96,30 @@ const signup = asyncHandler(async (req, res) => {
     secure: false,
   };
 
-  const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
-    createdUser?._id
-  );
+  const accessToken = await createdUser.generateAccessToken();
+  const refreshToken = await createdUser.generateRefreshToken();
 
-  return res
-    .status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
-    .json(
-      new ApiResponse(
-        200,
-        { ...createdUser, accessToken },
-        "User Created Succesfully"
-      )
-    );
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        _id: createdUser?._id,
+        username: createdUser?.username,
+        fullName: createdUser?.fullName,
+        profilePic: createdUser?.profilePic,
+        accessToken: accessToken || "",
+        refreshToken: refreshToken || "",
+      },
+      "User Created Succesfully"
+    )
+  );
 });
 
-export { login, signup };
+const getCurrentUser = asyncHandler(async (req, res) => {
+  console.log("Current User Verified!", req?.user);
+  return res
+    .status(200)
+    .json(new ApiResponse(200, req?.user, "current user fetched successfully"));
+});
+
+export { login, signup, getCurrentUser };

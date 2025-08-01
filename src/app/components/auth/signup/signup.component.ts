@@ -21,7 +21,7 @@ export class SignupComponent {
     { validators: matchPasswordValidator }
   );
 
-  constructor(private authService: AuthService, private route: Router) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   getSignupPayload(): any {
     return {
@@ -38,6 +38,21 @@ export class SignupComponent {
       return;
     }
     const payload = this.getSignupPayload();
-    this.authService.signup(payload);
+    this.authService.signup(payload).subscribe({
+      next: (data: any) => {
+        const userData = {
+          _id: data?.data?._id,
+          username: data.data?.username,
+          fullName: data.data?.fullName,
+          profilePic: data.data?.profilePic,
+        };
+        this.authService.setCurrentUser(userData);
+        console.log('after setting value', userData);
+        this.router.navigate(['/home']);
+      },
+      error: (error) => {
+        console.log('Error:', error);
+      },
+    });
   }
 }
