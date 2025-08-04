@@ -27,6 +27,7 @@ export class AppComponent implements OnInit {
       next: (res) => {
         this.userData = res.data;
         this.isLoading = false;
+        this.authService.setCurrentUser(this.userData);
 
         const currentUrl = this.router.url;
         const isAuthPage = currentUrl.startsWith('/auth');

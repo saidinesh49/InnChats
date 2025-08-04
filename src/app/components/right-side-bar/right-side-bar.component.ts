@@ -10,17 +10,14 @@ import { FriendService } from 'src/app/services/friend-service.service';
   styleUrls: ['./right-side-bar.component.css'],
 })
 export class RightSideBarComponent implements OnInit {
-  selectedUser?: friend | null;
+  userData?: friend | null;
 
-  constructor(
-    private authService: AuthService,
-    private friendService: FriendService,
-    private router: Router
-  ) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit() {
-    this.friendService.selectedUser.subscribe((user) => {
-      this.selectedUser = user;
+    this.authService.userData.subscribe((data) => {
+      this.userData = data;
+      console.log(this.userData);
     });
   }
 

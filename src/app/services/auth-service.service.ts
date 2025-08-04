@@ -17,7 +17,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class AuthService {
   private apiUrl: string = 'http://localhost:8000';
-  private userData = new BehaviorSubject<User>({
+  userData = new BehaviorSubject<User>({
     _id: '',
     username: '',
     fullName: '',
@@ -128,7 +128,7 @@ export class AuthService {
     this.userData.next({
       _id: data?._id,
       username: data?.username,
-      fullName: data?.fullname,
+      fullName: data?.fullName,
       profilePic: data?.profilePic,
     });
   }

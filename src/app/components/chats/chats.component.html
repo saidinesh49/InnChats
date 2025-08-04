@@ -1,1 +1,8 @@
-<div class="chat-container"></div>
+<div class="chat-container">
+  <div class="chat-box-header">
+    <img [src]="selectedUser?.profilePic" />
+    <p>{{ selectedUser?.username }}</p>
+  </div>
+  <div class="chat-box">chat box</div>
+  <div class="chat-box-footer">footer</div>
+</div>
