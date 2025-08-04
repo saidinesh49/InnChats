@@ -29,7 +29,21 @@ export class LoginComponent {
       return;
     }
     const payload = this.getLoginPayLoad();
-    this.authService.loginUser(payload);
-    console.log('login completed');
+    this.authService.loginUser(payload).subscribe({
+      next: (data: any) => {
+        const userData = {
+          _id: data?.data?._id,
+          username: data.data?.username,
+          fullName: data.data?.fullName,
+          profilePic: data.data?.profilePic,
+        };
+        this.authService.setCurrentUser(userData);
+        console.log('after setting value', userData);
+        this.router.navigate(['/home']);
+      },
+      error: (error) => {
+        console.log('Error:', error);
+      },
+    });
   }
 }

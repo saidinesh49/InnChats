@@ -1,3 +1,47 @@
 <div class="bar-container">
-  <p>InnChats</p>
+  <strong [ngStyle]="{ marginTop: '24px', fontSize: '20px' }">InnChats</strong>
+  <div
+    [ngStyle]="{
+      display: 'flex',
+      flexDirection: 'row',
+      gap: '12px',
+      width: '90%'
+    }"
+  >
+    <input
+      type="text"
+      [(ngModel)]="searchTerm"
+      name="search"
+      placeholder="Search in friend list"
+      class="search-box"
+    />
+    <div matRipple [matRippleColor]="'rgba(0,0,0,0.1)'" class="plus-icon">
+      <img src="../../../assets/plus-icon.png" class="plus-icon" />
+    </div>
+  </div>
+
+  <div
+    *ngIf="friendsList.length > 0; else noFriends"
+    [ngStyle]="{ overflowY: 'auto', flexGrow: '1', width: '100%' }"
+  >
+    <div
+      *ngFor="let friend of friendsList; let i = index"
+      class="friend-item"
+      [ngClass]="{ selected: selectedUser?.username === friend.username }"
+      (click)="toggleFriend(friend.username)"
+    >
+      <img
+        [src]="friend?.profilePic"
+        class="friend-pic"
+        [ngStyle]="{ borderRadius: '50%', width: '15%', height: '15%' }"
+      />
+      <span class="friend-name">{{ friend?.fullName }}</span>
+    </div>
+  </div>
+
+  <ng-template #noFriends>
+    <div class="no-friends">
+      <p>Your friends list is empty!</p>
+    </div>
+  </ng-template>
 </div>

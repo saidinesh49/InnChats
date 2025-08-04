@@ -1,5 +1,50 @@
 .bar-container {
-  width: 100%;
-  height: 100%;
-  background-color: yellow;
+  width: 99.8%;
+  height: 100vh; /* ✅ Full viewport height */
+  background-color: rgb(245, 248, 252);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding-left: 5%;
+  border-right: 2px solid #dedede;
+  gap: 20px;
+}
+
+.search-box {
+  border: 2px solid #d2b105;
+  border-radius: 8px;
+  width: 80%;
+  height: 30px;
+  padding-left: 24px;
+  outline: none;
+}
+
+.search-box:focus {
+  border: 2px solid #e6bf00;
+}
+
+.plus-icon {
+  cursor: pointer;
+  width: 37px;
+  height: 37px;
+  border-radius: 50%;
+  box-shadow: 0px 0px 2.5px 0.5px #828282;
+}
+
+.friend-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  transition: background-color 0.2s ease;
+  gap: 4%;
+}
+
+.friend-item:hover {
+  background-color: #e7e7e75b;
+  cursor: pointer;
+}
+
+.friend-item.selected {
+  background-color: #ebebebcf;
 }

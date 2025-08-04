@@ -1,1 +1,52 @@
-<div class="bar-container">user profile</div>
+<div
+  [ngStyle]="{
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  }"
+  class="bar-container"
+>
+  <div *ngIf="selectedUser; else noSelectedUser" class="selected-user">
+    <img
+      [src]="selectedUser.profilePic"
+      [ngStyle]="{ borderRadius: '50%', marginX: '50px' }"
+      class="selected-user-profile-pic"
+    />
+    <strong>{{ selectedUser.fullName }}</strong>
+    <button
+      matRipple
+      [matRippleColor]="'rgba(0,0,0,0.1)'"
+      class="inn-button mat-px-10"
+    >
+      View Profile
+    </button>
+  </div>
+  <ng-template #noSelectedUser>
+    <p
+      [ngStyle]="{
+        marginTop: '350px',
+        fontWeight: 'semi-bold',
+        fontSize: '20px',
+        color: '#777'
+      }"
+    >
+      No preivew
+    </p>
+  </ng-template>
+  <button
+    (click)="handleLogout()"
+    matRipple
+    [matRippleColor]="'#545352'"
+    class="logout-btn"
+    [ngStyle]="{
+      width: '80%',
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      cursor: 'pointer',
+    }"
+  >
+    Logout
+  </button>
+</div>

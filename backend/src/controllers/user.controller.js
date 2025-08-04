@@ -25,7 +25,7 @@ const generateAccessAndRefreshToken = asyncHandler(async (userId) => {
 const login = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
   if (!(username && password)) {
-    throw new ApiError(401, "Password is not received");
+    throw new ApiError(401, "Username & Password is required");
   }
   console.log("userdata received at backend", req.body);
   const user = await User.findOne({ username });
@@ -36,31 +36,28 @@ const login = asyncHandler(async (req, res) => {
   if (!isPasswordCorrect) {
     throw new ApiError(400, "Wrong Password");
   }
-  const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
-    user?._id
-  );
+  console.log("user is:", user);
+  const accessToken = await user.generateAccessToken();
+  const refreshToken = await user.generateRefreshToken();
 
   const options = {
     httpOnly: true,
     secure: false,
   };
-  return res
-    .status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
-    .json(
-      new ApiResponse(
-        200,
-        {
-          _id: user?._id,
-          username: user?.username,
-          fullName: user?.fullName,
-          profilePic: user?.profilePic,
-          accessToken: accessToken,
-        },
-        "User Login Succesfull"
-      )
-    );
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        _id: user?._id,
+        username: user?.username,
+        fullName: user?.fullName,
+        profilePic: user?.profilePic,
+        accessToken: accessToken || "",
+        refreshToken: refreshToken || "",
+      },
+      "User Login Succesfull"
+    )
+  );
 });
 
 const signup = asyncHandler(async (req, res) => {
