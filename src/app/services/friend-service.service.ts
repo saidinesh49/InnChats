@@ -1,13 +1,16 @@
 import { Injectable, OnInit } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { friend } from '../Interfaces/friend.interface';
+import { HttpClient } from '@angular/common/http';
+import { AuthService } from './auth-service.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FriendService {
-  friendsList!: BehaviorSubject<friend[]>;
-  selectedUser!: BehaviorSubject<friend | null>;
+  private apiUrl: string = 'http://localhost:8000';
+  friendsList = new BehaviorSubject<friend[] | null>(null);
+  selectedUser = new BehaviorSubject<friend | null>(null);
 
   dummyData: friend[] = [
     {
@@ -66,15 +69,38 @@ export class FriendService {
     },
   ];
 
-  constructor() {
-    this.friendsList = new BehaviorSubject<friend[]>(this.dummyData);
-    this.selectedUser = new BehaviorSubject<friend | null>(null);
+  constructor(private http: HttpClient, private authService: AuthService) {
+    // this.getFriendsListFromServer().subscribe({
+    //   next: (data) => {
+    //     console.log('Friends list requrest data is:', data?.data);
+    //     // const filteredFriendsListData = data?.data?.friends?.map();
+    //   },
+    //   error: (error) => {
+    //     console.log('Error while fetching friendsList:', error);
+    //   },
+    // });
   }
 
   toggleFriend(username: string) {
-    let matched = this.friendsList.value.find((f) => f.username == username);
+    let matched = this.friendsList.value?.find((f) => f.username == username);
     if (matched) {
       this.selectedUser.next(matched);
     }
+  }
+
+  setFriendsList(friends: friend[] | any) {
+    this.friendsList.next(friends);
+  }
+
+  getFriendsListFromServer() {
+    const accessToken = this.authService.getCookie('accessToken');
+    return this.http.get<{ data: any }>(
+      `${this.apiUrl}/friendsList/friends-list`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
   }
 }

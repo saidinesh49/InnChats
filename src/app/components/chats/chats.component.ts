@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { friend } from 'src/app/Interfaces/friend.interface';
+import { Message } from 'src/app/Interfaces/message.interface';
 import { FriendService } from 'src/app/services/friend-service.service';
 
 @Component({
@@ -8,6 +9,7 @@ import { FriendService } from 'src/app/services/friend-service.service';
   styleUrls: ['./chats.component.css'],
 })
 export class ChatsComponent implements OnInit {
+  messages!: Message[];
   selectedUser!: friend | null;
   constructor(private friendService: FriendService) {}
 

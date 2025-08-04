@@ -21,7 +21,7 @@
   </div>
 
   <div
-    *ngIf="friendsList.length > 0; else noFriends"
+    *ngIf="friendsList && friendsList.length > 0; else noFriends"
     [ngStyle]="{ overflowY: 'auto', flexGrow: '1', width: '100%' }"
   >
     <div

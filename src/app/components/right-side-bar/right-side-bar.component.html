@@ -12,13 +12,13 @@
       [ngStyle]="{ borderRadius: '50%', marginX: '50px' }"
       class="user-profile-pic"
     />
-    <strong>{{ userData?.fullName }}</strong>
+    <strong>{{ userData.fullName }}</strong>
     <button
       matRipple
       [matRippleColor]="'rgba(0,0,0,0.1)'"
       class="inn-button mat-px-10"
     >
-      Edit Profile
+      Edit Your Profile
     </button>
   </div>
   <ng-template #noUserData>

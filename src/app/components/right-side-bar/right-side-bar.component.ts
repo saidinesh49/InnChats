@@ -12,7 +12,11 @@ import { FriendService } from 'src/app/services/friend-service.service';
 export class RightSideBarComponent implements OnInit {
   userData?: friend | null;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private friendService: FriendService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.authService.userData.subscribe((data) => {
@@ -28,6 +32,7 @@ export class RightSideBarComponent implements OnInit {
         const userData = res?.data;
         if (userData?.username) {
           this.authService.logoutUser();
+          this.friendService.setFriendsList([]);
         }
         this.router.navigate(['auth/login']);
         console.log('User logout at frontend!');

@@ -1,8 +1,56 @@
-<div class="chat-container">
+<div *ngIf="selectedUser; else noSelectedUser" class="chat-container">
   <div class="chat-box-header">
-    <img [src]="selectedUser?.profilePic" />
-    <p>{{ selectedUser?.username }}</p>
+    <img
+      [src]="selectedUser.profilePic"
+      [ngStyle]="{
+        width: '40px',
+        height: '40px',
+        borderRadius: '50%',
+    }"
+    />
+    <p [ngStyle]="{ marginTop: '10px' }">
+      {{ selectedUser.fullName }}
+      <a [ngStyle]="{ color: 'gray', fontWeight: '300' }"
+        >({{ selectedUser.username }})</a
+      >
+    </p>
   </div>
   <div class="chat-box">chat box</div>
-  <div class="chat-box-footer">footer</div>
+  <div class="chat-box-footer">
+    <input
+      type="text"
+      placeholder="Enter your message"
+      [ngStyle]="{
+        border: '2px solid #d2b105',
+        borderRadius: '5px',
+        width: '90%',
+        height: '30px',
+        padding: '0px 0px 0px 20px',
+        outline: 'none'
+      }"
+    />
+    <div matRipple [matRippleColor]="'rgba(0,0,0,0.1)'" class="send-icon">
+      <img src="../../../assets/send-icon.png" class="send-icon" />
+    </div>
+  </div>
 </div>
+<ng-template #noSelectedUser>
+  <div
+    [ngStyle]="{
+      width: '99.5%',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      fontSize: '24px',
+      color: 'gray',
+      backgroundColor: 'rgb(250, 252, 255)',
+      borderRight: '1.5px solid #dedede',
+      borderLeft: '1.5px solid #dedede',
+
+    }"
+  >
+    <p>No Preview</p>
+  </div>
+</ng-template>

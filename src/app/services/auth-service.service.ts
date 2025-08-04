@@ -11,6 +11,7 @@ import {
 } from 'rxjs';
 import { User } from '../Interfaces/user.interface';
 import { HttpClient } from '@angular/common/http';
+import { FriendService } from './friend-service.service';
 
 @Injectable({
   providedIn: 'root',
@@ -76,6 +77,7 @@ export class AuthService {
       fullName: '',
       profilePic: '',
     });
+    // this.friendService.friendsList.next([]);
   }
 
   signup(data: {
@@ -97,24 +99,6 @@ export class AuthService {
           });
         })
       );
-    // .subscribe({
-    //   next: (data: any) => {
-    //     console.log('received data from backend:', data);
-    //     this.setCookie('accessToken', data?.data?.accessToken, {
-    //       maxAge: 60 * 60 * 24,
-    //     });
-    //     this.userData.next({
-    //       _id: data?.data?._id,
-    //       username: data.data?.username,
-    //       fullName: data.data?.fullName,
-    //       profilePic: data.data?.profilePic,
-    //     });
-    //     console.log('after setting value', this.userData.value);
-    //   },
-    //   error: (error) => {
-    //     console.log('Error:', error);
-    //   },
-    // });
   }
 
   getCurrentUser() {

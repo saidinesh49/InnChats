@@ -4,6 +4,7 @@ import { User } from './Interfaces/user.interface';
 import { ProgressSpinnerMode } from '@angular/material/progress-spinner';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
+import { FriendService } from './services/friend-service.service';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +18,7 @@ export class AppComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
+    private friendsService: FriendService,
     private router: Router,
     private activatedRoute: ActivatedRoute
   ) {}
