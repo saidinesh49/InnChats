@@ -1,9 +1,10 @@
 import { isValidObjectId } from "mongoose";
 import { FriendsList } from "../models/friendsList.model.js";
-import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { getAllUsers } from "./user.controller.js";
+import { User } from "../models/user.model.js";
 
 const getFriendsList = asyncHandler(async (req, res) => {
   console.log("get friendslist called");
@@ -56,4 +57,31 @@ const addToFriendsList = asyncHandler(async (req, res) => {
     );
 });
 
-export { getFriendsList, addToFriendsList };
+const getAllNonFriends = asyncHandler(async (req, res) => {
+  console.log("get all non friends received");
+  const currentUserId = req?.user?._id;
+  const friends = await FriendsList.findOne({ owner: currentUserId });
+  if (!friends?.owner) {
+    const nonFriends = await User.find({
+      _id: { $nin: [currentUserId] },
+    });
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, { nonFriends }, "Non Friends Fetched Successfully")
+      );
+  }
+  const nonFriends = await User.find({
+    _id: { $nin: [currentUserId, ...friends?.friends] },
+  });
+
+  console.log("not friends list:", nonFriends);
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, { nonFriends }, "Non Friends Fetched Successfully")
+    );
+});
+
+export { getFriendsList, addToFriendsList, getAllNonFriends };

@@ -116,4 +116,8 @@ export class AuthService {
       profilePic: data?.profilePic,
     });
   }
+
+  getAllUsers() {
+    return this.http.get<{}>(`${this.apiUrl}/auth/get-all-users`);
+  }
 }

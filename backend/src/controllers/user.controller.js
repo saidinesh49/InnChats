@@ -119,4 +119,22 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, req?.user, "current user fetched successfully"));
 });
 
-export { login, signup, getCurrentUser };
+const getAllUsers = asyncHandler(async (req, res) => {
+  const allUsers = await User.aggregate([
+    {
+      $project: {
+        _id: 1,
+        username: 1,
+        fullName: 1,
+        profilePic: 1,
+        password: 0,
+        refreshToken: 0,
+      },
+    },
+  ]);
+  return res
+    .status(200)
+    .json(new ApiResponse(200, allUsers, "All users fetched Successfully"));
+});
+
+export { login, signup, getCurrentUser, getAllUsers };

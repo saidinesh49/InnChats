@@ -69,17 +69,7 @@ export class FriendService {
     },
   ];
 
-  constructor(private http: HttpClient, private authService: AuthService) {
-    // this.getFriendsListFromServer().subscribe({
-    //   next: (data) => {
-    //     console.log('Friends list requrest data is:', data?.data);
-    //     // const filteredFriendsListData = data?.data?.friends?.map();
-    //   },
-    //   error: (error) => {
-    //     console.log('Error while fetching friendsList:', error);
-    //   },
-    // });
-  }
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   toggleFriend(username: string) {
     let matched = this.friendsList.value?.find((f) => f.username == username);
@@ -102,5 +92,30 @@ export class FriendService {
         },
       }
     );
+  }
+
+  addToFriendsList(newFriendId: string) {
+    const accessToken = this.authService.getCookie('accessToken');
+    console.log('making friend with', newFriendId);
+    return this.http.post<{ data: any }>(
+      `${this.apiUrl}/friendsList/friends-list`,
+      {
+        newFriendId,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+  }
+
+  getNonFriendsList() {
+    const accessToken = this.authService.getCookie('accessToken');
+    return this.http.get(`${this.apiUrl}/friendsList/get-all-non-friends`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
   }
 }

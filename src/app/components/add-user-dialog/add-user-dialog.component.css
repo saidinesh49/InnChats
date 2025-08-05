@@ -1,0 +1,68 @@
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1px;
+  font-weight: bold;
+  font-size: 16px;
+  border-bottom: 2px solid #bfbfbf;
+}
+
+.search-input {
+  width: 93%;
+  max-width: 93%;
+  margin-top: 4px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.newFriendSuggestionList {
+  margin-right: 10px;
+  max-height: 170px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-top: 10px;
+}
+
+/* Styling each user item */
+.newFriendSuggestionList li {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  gap: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+li span {
+  flex: 1;
+  font-size: 14px;
+}
+
+li button {
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+li button:hover {
+  background-color: #1976d2;
+}

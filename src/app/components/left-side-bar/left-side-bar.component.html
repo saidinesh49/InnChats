@@ -16,7 +16,12 @@
       placeholder="Search in friend list"
       class="search-box"
     />
-    <div matRipple [matRippleColor]="'rgba(0,0,0,0.1)'" class="plus-icon">
+    <div
+      matRipple
+      [matRippleColor]="'rgba(0,0,0,0.1)'"
+      class="plus-icon"
+      (click)="onClickPlusIcon()"
+    >
       <img src="../../../assets/plus-icon.png" class="plus-icon" />
     </div>
   </div>

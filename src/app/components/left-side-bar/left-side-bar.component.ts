@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { BehaviorSubject, Subject, debounceTime } from 'rxjs';
 import { friend } from 'src/app/Interfaces/friend.interface';
 import { Trie } from 'src/app/Interfaces/search.interface';
@@ -20,6 +20,8 @@ export class LeftSideBarComponent implements OnInit {
   showPopup = false;
 
   trie = new Trie();
+
+  @Output() addFriendEmiiter = new EventEmitter<void>();
 
   private searchSubject = new Subject<string>();
 
@@ -67,5 +69,9 @@ export class LeftSideBarComponent implements OnInit {
       console.log(user);
       this.selectedUser = user;
     });
+  }
+
+  onClickPlusIcon() {
+    this.addFriendEmiiter.emit();
   }
 }

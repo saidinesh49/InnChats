@@ -18,6 +18,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
+import { AddUserDialogComponent } from './components/add-user-dialog/add-user-dialog.component';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @NgModule({
   declarations: [
@@ -30,6 +32,7 @@ import { MatRippleModule } from '@angular/material/core';
     HomePageComponent,
     AuthComponent,
     LoadingComponent,
+    AddUserDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -41,6 +44,7 @@ import { MatRippleModule } from '@angular/material/core';
     MatProgressSpinnerModule,
     MatButtonModule,
     MatRippleModule,
+    MatDialogModule,
   ],
   providers: [AuthService],
   bootstrap: [AppComponent],

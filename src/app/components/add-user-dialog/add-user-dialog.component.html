@@ -1,0 +1,31 @@
+<div
+  [ngStyle]="{
+    padding: '0px 0px 0px 10px',
+    borderRadius: '10%',
+  }"
+>
+  <div class="dialog-header">
+    <span>Add User</span>
+    <button mat-icon-button (click)="closeDialog()">X</button>
+  </div>
+
+  <input
+    [(ngModel)]="searchTermUsername"
+    (input)="onSearchTermChange()"
+    placeholder="Search users..."
+    class="search-input"
+  />
+
+  <div class="scroll-container">
+    <ul class="newFriendSuggestionList">
+      <li *ngFor="let user of filteredUsers">
+        <img [src]="user.profilePic" class="avatar" />
+        <span
+          >{{ user.fullName }}
+          <p [ngStyle]="{ color: 'gray' }">({{ user.username }})</p></span
+        >
+        <button (click)="addFriend(user._id)">Add Friend</button>
+      </li>
+    </ul>
+  </div>
+</div>

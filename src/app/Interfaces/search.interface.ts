@@ -7,6 +7,8 @@ export class Trie {
   root = new TrieNode();
 
   insert(user: any) {
+    if (!user?.fullName || typeof user.fullName !== 'string') return;
+
     let node = this.root;
     const name = user.fullName.toLowerCase();
     for (let ch of name) {
@@ -14,7 +16,11 @@ export class Trie {
         node.children[ch] = new TrieNode();
       }
       node = node.children[ch];
-      node.users.push(user); // store ref for partial match
+
+      // Prevent duplicate entries
+      if (!node.users.some((u) => u._id === user._id)) {
+        node.users.push(user);
+      }
     }
   }
 
@@ -25,10 +31,10 @@ export class Trie {
       if (!node.children[ch]) return [];
       node = node.children[ch];
     }
-    return node.users;
+    return [...node.users]; // return shallow copy to avoid external mutation
   }
 
-  clearAll() {
+  clearAll(): void {
     this.root = new TrieNode();
   }
 }
