@@ -10,7 +10,8 @@
   >
     <input
       type="text"
-      [(ngModel)]="searchTerm"
+      (input)="onSearchTermChange()"
+      [(ngModel)]="term"
       name="search"
       placeholder="Search in friend list"
       class="search-box"
@@ -21,11 +22,11 @@
   </div>
 
   <div
-    *ngIf="friendsList && friendsList.length > 0; else noFriends"
+    *ngIf="suggestionList && suggestionList.length > 0; else noFriends"
     [ngStyle]="{ overflowY: 'auto', flexGrow: '1', width: '100%' }"
   >
     <div
-      *ngFor="let friend of friendsList; let i = index"
+      *ngFor="let friend of suggestionList; let i = index"
       class="friend-item"
       [ngClass]="{ selected: selectedUser?.username === friend.username }"
       (click)="toggleFriend(friend.username)"

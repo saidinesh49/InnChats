@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject, debounceTime } from 'rxjs';
 import { friend } from 'src/app/Interfaces/friend.interface';
+import { Trie } from 'src/app/Interfaces/search.interface';
 import { AuthService } from 'src/app/services/auth-service.service';
 import { FriendService } from 'src/app/services/friend-service.service';
 
@@ -11,10 +12,16 @@ import { FriendService } from 'src/app/services/friend-service.service';
 })
 export class LeftSideBarComponent implements OnInit {
   userData!: any;
-  friendsList!: friend[] | null;
-  selectedUser!: friend | null;
-  searchTerm!: String;
-  showPopup!: boolean;
+  friendsList: friend[] = [];
+  selectedUser: friend | null = null;
+  term!: string;
+
+  suggestionList: friend[] = [];
+  showPopup = false;
+
+  trie = new Trie();
+
+  private searchSubject = new Subject<string>();
 
   constructor(
     private authService: AuthService,
@@ -22,7 +29,7 @@ export class LeftSideBarComponent implements OnInit {
   ) {
     this.friendService.getFriendsListFromServer().subscribe({
       next: (data) => {
-        console.log('Friends list requrest data is:', data?.data);
+        console.log('Friends list request data is:', data?.data);
         this.friendService.setFriendsList(data?.data?.friends);
       },
       error: (error) => {
@@ -33,12 +40,25 @@ export class LeftSideBarComponent implements OnInit {
 
   ngOnInit() {
     this.friendService.friendsList.subscribe((data) => {
-      this.friendsList = data;
+      this.friendsList = data || [];
+      this.trie.clearAll();
+      this.friendsList.forEach((friend) => this.trie.insert(friend));
+      this.suggestionList = [...this.friendsList]; // default to all friends
     });
 
     this.authService.userData.subscribe((userData) => {
       this.userData = userData;
     });
+  }
+
+  onSearchTermChange() {
+    const term = this.term.trim().toLowerCase();
+
+    if (!term) {
+      this.suggestionList = this.friendsList;
+      return;
+    }
+    this.suggestionList = this.trie.search(term);
   }
 
   toggleFriend(username: string) {
