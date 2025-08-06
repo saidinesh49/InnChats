@@ -15,7 +15,32 @@
       >
     </p>
   </div>
-  <div class="chat-box">chat box</div>
+  <div
+    *ngIf="messages && messages?.length; else noMessagesWithFriend"
+    class="chat-messages"
+  >
+    <div *ngFor="let message of messages; let i = index">
+      <div [ngSwitch]="message?.sender">
+        <p *ngSwitchCase="userData?.username" class="usersMessage">
+          {{ message?.message }}
+        </p>
+        <p *ngSwitchDefault class="friendsMessage">{{ message?.message }}</p>
+      </div>
+    </div>
+  </div>
+  <ng-template #noMessagesWithFriend>
+    <div
+      [ngStyle]="{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        color: 'gray'
+      }"
+    >
+      Chat Box is Empty, start Conversation
+    </div>
+  </ng-template>
   <div class="chat-box-footer">
     <input
       type="text"

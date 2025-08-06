@@ -19,6 +19,12 @@
   border-bottom: 2px solid #dedede;
 }
 
+.chat-messages {
+  flex: 100px; /* take all available space */
+  overflow-y: auto; /* this makes it scrollable */
+  background: #fff;
+  scrollbar-width: none;
+}
 .chat-box-footer {
   display: flex;
   flex-direction: row;
@@ -34,4 +40,24 @@
   height: 30px;
   /* border-radius: 50%; */
   box-shadow: 0px 0px 2.5px 0.5px #828282;
+}
+
+.usersMessage {
+  padding: 10px 10px 10px 10px;
+  color: black;
+  background-color: #ffe55e;
+  width: max-content;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.friendsMessage {
+  padding: 10px 10px 10px 10px;
+  color: black;
+  background-color: #e0e0e0;
+  width: max-content;
+  border-top-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
