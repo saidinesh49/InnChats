@@ -17,7 +17,10 @@
   />
 
   <div class="scroll-container">
-    <ul class="newFriendSuggestionList">
+    <ul
+      *ngIf="filteredUsers && filteredUsers?.length; else noFilteredUsers"
+      class="newFriendSuggestionList"
+    >
       <li *ngFor="let user of filteredUsers">
         <img [src]="user.profilePic" class="avatar" />
         <span
@@ -27,5 +30,6 @@
         <button (click)="addFriend(user._id)">Add Friend</button>
       </li>
     </ul>
+    <ng-template #noFilteredUsers> No Results </ng-template>
   </div>
 </div>

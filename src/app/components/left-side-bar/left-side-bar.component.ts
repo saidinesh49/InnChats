@@ -1,9 +1,11 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Subject, debounceTime } from 'rxjs';
 import { friend } from 'src/app/Interfaces/friend.interface';
 import { Trie } from 'src/app/Interfaces/search.interface';
 import { AuthService } from 'src/app/services/auth-service.service';
 import { FriendService } from 'src/app/services/friend-service.service';
+import { HashService } from 'src/app/services/hash-service.service';
 
 @Component({
   selector: 'app-left-side-bar',
@@ -23,11 +25,12 @@ export class LeftSideBarComponent implements OnInit {
 
   @Output() addFriendEmiiter = new EventEmitter<void>();
 
-  private searchSubject = new Subject<string>();
-
   constructor(
     private authService: AuthService,
-    private friendService: FriendService
+    private friendService: FriendService,
+    private hashService: HashService,
+    private router: Router,
+    private activatedRouter: ActivatedRoute
   ) {
     this.friendService.getFriendsListFromServer().subscribe({
       next: (data) => {
@@ -64,10 +67,19 @@ export class LeftSideBarComponent implements OnInit {
   }
 
   toggleFriend(username: string) {
-    this.friendService.toggleFriend(username);
-    this.friendService.selectedUser.subscribe((user) => {
-      console.log(user);
-      this.selectedUser = user;
+    // this.friendService.toggleFriend(username);
+    // this.friendService.selectedUser.subscribe((user) => {
+    //   console.log(user);
+    //   this.selectedUser = user;
+    // });
+    let chatId = this.hashService.encryptData([
+      this.authService.userData?.value?.username,
+      username,
+    ]);
+
+    this.router.navigate([], {
+      relativeTo: this.activatedRouter,
+      queryParams: { chatId: chatId },
     });
   }
 

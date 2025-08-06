@@ -73,6 +73,7 @@ export class FriendService {
 
   toggleFriend(username: string) {
     let matched = this.friendsList.value?.find((f) => f.username == username);
+    console.log('changing selected user', matched);
     if (matched) {
       this.selectedUser.next(matched);
     }

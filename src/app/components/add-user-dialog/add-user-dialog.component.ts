@@ -30,7 +30,7 @@ export class AddUserDialogComponent implements OnInit {
       const users = res?.data?.nonFriends || [];
       console.log('users contains:', users);
       this.allUsers = users;
-      this.filteredUsers = users;
+      // this.filteredUsers = users;
 
       this.trie.clearAll();
       users.forEach((u: any) => {
@@ -42,7 +42,7 @@ export class AddUserDialogComponent implements OnInit {
   onSearchTermChange() {
     const q = this.searchTermUsername.trim().toLowerCase();
     if (!q) {
-      this.filteredUsers = [...this.allUsers];
+      this.filteredUsers = [];
     } else {
       this.filteredUsers = this.trie.search(q);
     }
