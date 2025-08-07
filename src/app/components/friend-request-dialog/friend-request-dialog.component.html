@@ -1,0 +1,70 @@
+<h1 mat-dialog-title>Friend Requests</h1>
+
+<mat-tab-group [(selectedIndex)]="selectedTabIndex">
+  <mat-tab label="Received">
+    <mat-list *ngIf="receivedRequests.length; else noReceived">
+      <mat-list-item *ngFor="let req of receivedRequests">
+        <div
+          [ngStyle]="{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '10px'
+          }"
+        >
+          <img
+            [src]="req?.profilePic"
+            [ngStyle]="{ width: '30px', height: '30px' }"
+          />
+          <span [ngStyle]="{ marginLeft: '-20%' }">{{ req?.fullName }}</span>
+          <span [ngStyle]="{ color: 'gray', marginLeft: '-20%' }"
+            >({{ req?.username }})</span
+          >
+
+          <button
+            mat-button
+            color="primary"
+            (click)="acceptRequest(req._id)"
+            class="status-accept"
+          >
+            Accept
+          </button>
+        </div>
+      </mat-list-item>
+    </mat-list>
+    <ng-template #noReceived>
+      <p style="padding: 10px">No received requests</p>
+    </ng-template>
+  </mat-tab>
+
+  <mat-tab label="Sent">
+    <mat-list *ngIf="sentRequests.length; else noSent">
+      <mat-list-item *ngFor="let req of sentRequests">
+        <div
+          [ngStyle]="{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '10px'
+          }"
+        >
+          <img
+            [src]="req?.profilePic"
+            [ngStyle]="{
+              width: '30px',
+              height: '30px',
+            }"
+          />
+          <span [ngStyle]="{ marginLeft: '-40px' }">{{ req?.fullName }}</span>
+          <span [ngStyle]="{ color: 'gray', marginLeft: '-45px' }"
+            >({{ req?.username }})</span
+          >
+          <span class="status-pending">Pending</span>
+        </div>
+      </mat-list-item>
+    </mat-list>
+    <ng-template #noSent>
+      <p style="padding: 10px">No sent requests</p>
+    </ng-template>
+  </mat-tab>
+</mat-tab-group>

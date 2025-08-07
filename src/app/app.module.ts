@@ -20,6 +20,10 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { AddUserDialogComponent } from './components/add-user-dialog/add-user-dialog.component';
 import { MatDialogModule } from '@angular/material/dialog';
+import { FriendRequestDialogComponent } from './components/friend-request-dialog/friend-request-dialog.component';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
 
 @NgModule({
   declarations: [
@@ -33,6 +37,7 @@ import { MatDialogModule } from '@angular/material/dialog';
     AuthComponent,
     LoadingComponent,
     AddUserDialogComponent,
+    FriendRequestDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -45,6 +50,9 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatButtonModule,
     MatRippleModule,
     MatDialogModule,
+    MatTabsModule,
+    MatListModule,
+    MatIconModule,
   ],
   providers: [AuthService],
   bootstrap: [AppComponent],

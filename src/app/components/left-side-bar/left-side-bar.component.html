@@ -1,5 +1,25 @@
 <div class="bar-container">
-  <strong [ngStyle]="{ marginTop: '24px', fontSize: '20px' }">InnChats</strong>
+  <div
+    style="
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    "
+  >
+    <strong [ngStyle]="{ marginTop: '24px', fontSize: '20px' }"
+      >InnChats</strong
+    >
+
+    <button
+      mat-icon-button
+      (click)="openRequestsDialog()"
+      [ngStyle]="{ marginRight: '35px', marginTop: '15px' }"
+    >
+      <mat-icon>notifications</mat-icon>
+    </button>
+  </div>
+
   <div
     [ngStyle]="{
       display: 'flex',

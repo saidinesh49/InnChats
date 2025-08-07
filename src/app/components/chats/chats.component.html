@@ -19,12 +19,22 @@
     *ngIf="messages && messages?.length; else noMessagesWithFriend"
     class="chat-messages"
   >
-    <div *ngFor="let message of messages; let i = index">
-      <div [ngSwitch]="message?.sender">
-        <p *ngSwitchCase="userData?.username" class="usersMessage">
-          {{ message?.message }}
+    <div *ngFor="let message of messages">
+      <div
+        [ngClass]="{
+          'message-container-user': message.sender === userData?.username,
+          'message-container-friend': message.sender !== userData?.username
+        }"
+      >
+        <p
+          [ngClass]="
+            message.sender === userData?.username
+              ? 'usersMessage'
+              : 'friendsMessage'
+          "
+        >
+          {{ message.message }}
         </p>
-        <p *ngSwitchDefault class="friendsMessage">{{ message?.message }}</p>
       </div>
     </div>
   </div>

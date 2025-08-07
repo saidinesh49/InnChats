@@ -27,7 +27,16 @@
           >{{ user.fullName }}
           <p [ngStyle]="{ color: 'gray' }">({{ user.username }})</p></span
         >
-        <button (click)="addFriend(user._id)">Add Friend</button>
+        <button
+          *ngIf="user?.alreadyRequested != 1"
+          (click)="addFriend(user._id)"
+        >
+          Send Request
+        </button>
+
+        <button *ngIf="user?.alreadyRequested == 1" class="button-disabled">
+          Request Sent
+        </button>
       </li>
     </ul>
     <ng-template #noFilteredUsers> No Results </ng-template>

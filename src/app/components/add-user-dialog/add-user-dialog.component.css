@@ -66,3 +66,10 @@ li button {
 li button:hover {
   background-color: #1976d2;
 }
+
+.button-disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  background-color: #ccc;
+  color: #666;
+}

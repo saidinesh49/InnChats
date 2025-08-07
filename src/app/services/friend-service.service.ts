@@ -119,4 +119,42 @@ export class FriendService {
       },
     });
   }
+
+  getSentRequests() {
+    const accessToken = this.authService.getCookie('accessToken');
+    return this.http.get(`${this.apiUrl}/friendsList/requests/sent`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  }
+
+  getReceivedRequests() {
+    const accessToken = this.authService.getCookie('accessToken');
+    return this.http.get(`${this.apiUrl}/friendsList/requests/recieved`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  }
+
+  getAllUserRelatedRequests() {
+    const accessToken = this.authService.getCookie('accessToken');
+    return this.http.get(`${this.apiUrl}/friendsList/requests`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+  }
+
+  acceptUserReceivedRequest(friendId: string) {
+    const accessToken = this.authService.getCookie('accessToken');
+    return this.http.post(
+      `${this.apiUrl}/friendsList/requests`,
+      {
+        friendId: friendId,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+  }
 }

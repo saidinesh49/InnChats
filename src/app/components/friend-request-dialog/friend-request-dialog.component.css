@@ -1,0 +1,12 @@
+.status-pending {
+  background-color: rgba(188, 188, 188, 0.752);
+  padding: 3px 10px 3px 10px;
+  border-radius: 8px;
+  color: rgb(73, 73, 73);
+  font-size: 15px;
+}
+
+.status-accept {
+  padding: 3px 10px 3px 10px;
+  background-color: rgba(217, 214, 255, 0.721);
+}

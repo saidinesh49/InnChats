@@ -6,6 +6,9 @@ import { Trie } from 'src/app/Interfaces/search.interface';
 import { AuthService } from 'src/app/services/auth-service.service';
 import { FriendService } from 'src/app/services/friend-service.service';
 import { HashService } from 'src/app/services/hash-service.service';
+import { MatDialog } from '@angular/material/dialog';
+
+import { FriendRequestDialogComponent } from '../friend-request-dialog/friend-request-dialog.component';
 
 @Component({
   selector: 'app-left-side-bar',
@@ -29,6 +32,7 @@ export class LeftSideBarComponent implements OnInit {
     private authService: AuthService,
     private friendService: FriendService,
     private hashService: HashService,
+    private dialog: MatDialog,
     private router: Router,
     private activatedRouter: ActivatedRoute
   ) {
@@ -46,6 +50,7 @@ export class LeftSideBarComponent implements OnInit {
   ngOnInit() {
     this.friendService.friendsList.subscribe((data) => {
       this.friendsList = data || [];
+      console.log('Friendlist at leftside bar is:', data);
       this.trie.clearAll();
       this.friendsList.forEach((friend) => this.trie.insert(friend));
       this.suggestionList = [...this.friendsList]; // default to all friends
@@ -53,6 +58,7 @@ export class LeftSideBarComponent implements OnInit {
 
     this.authService.userData.subscribe((userData) => {
       this.userData = userData;
+      console.log('userdata at leftbar is:', userData);
     });
   }
 
@@ -85,5 +91,11 @@ export class LeftSideBarComponent implements OnInit {
 
   onClickPlusIcon() {
     this.addFriendEmiiter.emit();
+  }
+
+  openRequestsDialog() {
+    this.dialog.open(FriendRequestDialogComponent, {
+      width: '400px',
+    });
   }
 }

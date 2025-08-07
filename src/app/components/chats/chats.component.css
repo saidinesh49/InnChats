@@ -61,3 +61,15 @@
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
 }
+
+.message-container-user {
+  display: flex;
+  justify-content: flex-end; /* Pushes to the right */
+  padding: 2px 10px;
+}
+
+.message-container-friend {
+  display: flex;
+  justify-content: flex-start; /* Pushes to the left */
+  padding: 2px 10px;
+}
