@@ -17,7 +17,7 @@ import { FriendService } from './friend-service.service';
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl: string = 'https://innchats-backend.vercel.app'; //changes needed
+  private apiUrl: string = 'https://innchats.onrender.com'; //changes needed
   userData = new BehaviorSubject<User>({
     _id: '',
     username: '',

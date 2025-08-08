@@ -7,7 +7,7 @@ import { AuthService } from './auth-service.service';
   providedIn: 'root',
 })
 export class MessageService {
-  readonly apiUrl: string = 'https://innchats-backend.vercel.app'; //changes needed
+  readonly apiUrl: string = 'https://innchats.onrender.com'; //changes needed
   messages!: Message[];
   constructor(private authService: AuthService, private http: HttpClient) {}
 

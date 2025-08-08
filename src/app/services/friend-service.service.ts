@@ -8,7 +8,7 @@ import { AuthService } from './auth-service.service';
   providedIn: 'root',
 })
 export class FriendService {
-  private apiUrl: string = 'https://innchats-backend.vercel.app'; //changes needed
+  private apiUrl: string = 'https://innchats.onrender.com'; //changes needed
   friendsList = new BehaviorSubject<friend[] | null>(null);
   selectedUser = new BehaviorSubject<friend | null>(null);
 
