@@ -11,7 +11,7 @@ export class WebsocketService {
   constructor() {
     this.socket = io(this.uri, {
       transports: ['websocket'], // 🔐 force WebSocket protocol
-      withCredentials: true,
+      // withCredentials: true,
     });
   }
 
