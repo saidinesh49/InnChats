@@ -22,13 +22,13 @@
     <div *ngFor="let message of messages">
       <div
         [ngClass]="{
-          'message-container-user': message.sender === userData?.username,
-          'message-container-friend': message.sender !== userData?.username
+          'message-container-user': message.senderId === userData?._id,
+          'message-container-friend': message.senderId !== userData?._id
         }"
       >
         <p
           [ngClass]="
-            message.sender === userData?.username
+            message.senderId === userData?._id
               ? 'usersMessage'
               : 'friendsMessage'
           "

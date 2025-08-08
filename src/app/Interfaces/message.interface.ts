@@ -1,5 +1,5 @@
 export interface Message {
   roomId: string;
-  sender: string;
+  senderId: string;
   message: string;
 }

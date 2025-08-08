@@ -22,64 +22,116 @@ export class ChatsComponent implements OnInit {
   selectedUser!: friend | null;
 
   dummyMessages: Message[] = [
-    { roomId: 'room1', sender: 'Dinesh01', message: 'Hey, how are you?' },
     {
       roomId: 'room1',
-      sender: 'alice12',
+      senderId: '688c6e31c74a1c48e3bbe6d9',
+      message: 'Hey, how are you?',
+    },
+    {
+      roomId: 'room1',
+      senderId: '68905dabb465628278b70558',
       message: 'I am good, thanks! How about you?',
     },
-    { roomId: 'room1', sender: 'Dinesh01', message: 'Doing well. Had lunch?' },
-    { roomId: 'room1', sender: 'alice12', message: 'Yes, just now. You?' },
     {
       roomId: 'room1',
-      sender: 'Dinesh01',
+      senderId: '688c6e31c74a1c48e3bbe6d9',
+      message: 'Doing well. Had lunch?',
+    },
+    {
+      roomId: 'room1',
+      senderId: '68905dabb465628278b70558',
+      message: 'Yes, just now. You?',
+    },
+    {
+      roomId: 'room1',
+      senderId: '688c6e31c74a1c48e3bbe6d9',
       message: 'Not yet, waiting for you 😄',
     },
     {
       roomId: 'room1',
-      sender: 'alice12',
+      senderId: '68905dabb465628278b70558',
       message: 'Haha, let’s eat together next time!',
     },
-    { roomId: 'room1', sender: 'Dinesh01', message: 'Sure! I’d love that.' },
-    { roomId: 'room2', sender: 'Dinesh01', message: 'Are we meeting today?' },
-    { roomId: 'room2', sender: 'alice12', message: 'Yes, let’s meet at 5 PM.' },
+    {
+      roomId: 'room1',
+      senderId: '688c6e31c74a1c48e3bbe6d9',
+      message: 'Sure! I’d love that.',
+    },
     {
       roomId: 'room2',
-      sender: 'Dinesh01',
+      senderId: '688c6e31c74a1c48e3bbe6d9',
+      message: 'Are we meeting today?',
+    },
+    {
+      roomId: 'room2',
+      senderId: '68905dabb465628278b70558',
+      message: 'Yes, let’s meet at 5 PM.',
+    },
+    {
+      roomId: 'room2',
+      senderId: '688c6e31c74a1c48e3bbe6d9',
       message: 'Perfect. At the usual place?',
     },
-    { roomId: 'room2', sender: 'alice12', message: 'Yes, Cafe 92 it is.' },
-    { roomId: 'room2', sender: 'Dinesh01', message: 'Awesome, see you there!' },
-    { roomId: 'room2', sender: 'alice12', message: 'Don’t be late 😜' },
+    {
+      roomId: 'room2',
+      senderId: '68905dabb465628278b70558',
+      message: 'Yes, Cafe 92 it is.',
+    },
+    {
+      roomId: 'room2',
+      senderId: '688c6e31c74a1c48e3bbe6d9',
+      message: 'Awesome, see you there!',
+    },
+    {
+      roomId: 'room2',
+      senderId: '68905dabb465628278b70558',
+      message: 'Don’t be late 😜',
+    },
     {
       roomId: 'room3',
-      sender: 'Dinesh01',
+      senderId: '688c6e31c74a1c48e3bbe6d9',
       message: 'Did you finish the assignment?',
     },
     {
       roomId: 'room3',
-      sender: 'alice12',
+      senderId: '68905dabb465628278b70558',
       message: 'Not yet, working on it now.',
     },
-    { roomId: 'room3', sender: 'Dinesh01', message: 'Need any help?' },
     {
       roomId: 'room3',
-      sender: 'alice12',
+      senderId: '688c6e31c74a1c48e3bbe6d9',
+      message: 'Need any help?',
+    },
+    {
+      roomId: 'room3',
+      senderId: '68905dabb465628278b70558',
       message: 'Yeah maybe with question 5.',
     },
     {
       roomId: 'room3',
-      sender: 'Dinesh01',
+      senderId: '688c6e31c74a1c48e3bbe6d9',
       message: 'Cool, I’ll explain it in a bit.',
     },
-    { roomId: 'room3', sender: 'alice12', message: 'Thanks! You’re the best!' },
-    { roomId: 'room3', sender: 'Dinesh01', message: 'Haha, anytime! 😊' },
     {
       roomId: 'room3',
-      sender: 'alice12',
-      message: 'I’ll treat you to coffee later 😁',
+      senderId: '68905dabb465628278b70558',
+      message: 'Thanks! You’re the best!',
     },
-    { roomId: 'room3', sender: 'Dinesh01', message: 'Deal!' },
+    {
+      roomId: 'room3',
+      senderId: '688c6e31c74a1c48e3bbe6d9',
+      message: 'Haha, anytime! 😊',
+    },
+    {
+      roomId: 'room3',
+      senderId: '68905dabb465628278b70558',
+      message: 'Ill treat you to coffee later 😁',
+    },
+    {
+      roomId: 'room3',
+      senderId: '688c6e31c74a1c48e3bbe6d9',
+      message: 'Deal!',
+    },
   ];
 
   constructor(
