@@ -23,6 +23,8 @@ export class ChatsComponent implements OnInit {
   selectedUser!: friend | null;
   inputMessage!: string | null;
 
+  private hasSubscribedToSocket = false;
+
   dummyMessages: Message[] = [
     {
       roomId: 'room1',
@@ -171,6 +173,17 @@ export class ChatsComponent implements OnInit {
         }
       });
     });
+
+    if (!this.hasSubscribedToSocket) {
+      this.webSocketService
+        .listen(`message:${this.userData?._id}`)
+        .subscribe((data: any) => {
+          console.log('Data from backend socket:', data);
+          this.messages.push(data);
+        });
+
+      this.hasSubscribedToSocket = true;
+    }
   }
 
   showChatBox = async () => {
@@ -189,12 +202,12 @@ export class ChatsComponent implements OnInit {
         console.log('Error while loading chat messages:', error);
       },
     });
-    this.webSocketService
-      .listen(`message:${this.userData?._id}`)
-      .subscribe((data: any) => {
-        console.log('Data from backend socket:', data);
-        this.messages.push(data);
-      });
+    // this.webSocketService
+    //   .listen(`message:${this.userData?._id}`)
+    //   .subscribe((data: any) => {
+    //     console.log('Data from backend socket:', data);
+    //     this.messages.push(data);
+    //   });
   };
 
   handleSendMessage(event: any) {
