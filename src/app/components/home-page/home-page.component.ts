@@ -58,8 +58,8 @@ export class HomePageComponent implements OnInit {
       console.log('validated users are:', users);
       if (
         users &&
-        users[0] != this.authService.userData.value?.username &&
-        users[1] != this.authService.userData.value?.username
+        users[0] != this.authService.userData.value?._id &&
+        users[1] != this.authService.userData.value?._id
       ) {
         this.router.navigate([], {
           relativeTo: this.activatedRouter,

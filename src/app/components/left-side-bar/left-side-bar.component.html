@@ -54,7 +54,7 @@
       *ngFor="let friend of suggestionList; let i = index"
       class="friend-item"
       [ngClass]="{ selected: selectedUser?.username === friend.username }"
-      (click)="toggleFriend(friend.username)"
+      (click)="toggleFriend(friend._id)"
     >
       <img
         [src]="friend?.profilePic"

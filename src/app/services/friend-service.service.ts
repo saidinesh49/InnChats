@@ -12,7 +12,7 @@ export class FriendService {
   friendsList = new BehaviorSubject<friend[] | null>(null);
   selectedUser = new BehaviorSubject<friend | null>(null);
 
-  dummyData: friend[] = [
+  dummyData: friend[] | any = [
     {
       username: 'sunny_side',
       fullName: 'Ravi Kumar',
@@ -71,8 +71,8 @@ export class FriendService {
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
-  toggleFriend(username: string) {
-    let matched = this.friendsList.value?.find((f) => f.username == username);
+  toggleFriend(friendId: string) {
+    let matched = this.friendsList.value?.find((f) => f._id == friendId);
     console.log('changing selected user', matched);
     if (matched) {
       this.selectedUser.next(matched);

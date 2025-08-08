@@ -11,7 +11,8 @@ import mongoose from "mongoose";
 const getFriendsList = asyncHandler(async (req, res) => {
   console.log("get friendslist called", req?.user);
   const friends = await FriendsList.findOne({ owner: req?.user?._id }).populate(
-    "friends"
+    "friends",
+    "-password -refreshToken"
   );
   return res
     .status(200)

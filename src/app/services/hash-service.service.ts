@@ -9,13 +9,13 @@ export class HashService {
 
   constructor() {}
 
-  encryptData(users: string[]): string {
+  encryptData(usersIds: string[]): string {
     try {
-      if (!(users[0] && users[1])) {
+      if (!(usersIds[0] && usersIds[1])) {
         throw new Error("Both userId's required to get chatId via encryption");
       }
-      users.sort();
-      let data = users[0] + '_' + users[1];
+      usersIds.sort();
+      let data = usersIds[0] + '_' + usersIds[1];
       const jsonData = JSON.stringify(data);
       const encryptedData = CryptoJS.AES.encrypt(
         jsonData,
@@ -28,9 +28,9 @@ export class HashService {
     }
   }
 
-  decryptData(cipherText: string): string | null {
+  decryptData(encrypted_chatId: string): string | null {
     try {
-      const bytes = CryptoJS.AES.decrypt(cipherText, this.secretKey);
+      const bytes = CryptoJS.AES.decrypt(encrypted_chatId, this.secretKey);
       const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
       return JSON.parse(decryptedData);
     } catch (e) {

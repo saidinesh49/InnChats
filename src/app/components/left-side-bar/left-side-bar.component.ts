@@ -72,15 +72,15 @@ export class LeftSideBarComponent implements OnInit {
     this.suggestionList = this.trie.search(term);
   }
 
-  toggleFriend(username: string) {
+  toggleFriend(friendId: string) {
     // this.friendService.toggleFriend(username);
     // this.friendService.selectedUser.subscribe((user) => {
     //   console.log(user);
     //   this.selectedUser = user;
     // });
     let chatId = this.hashService.encryptData([
-      this.authService.userData?.value?.username,
-      username,
+      this.authService.userData?.value?._id,
+      friendId,
     ]);
 
     this.router.navigate([], {

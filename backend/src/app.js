@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 import authRoute from "./routes/auth.routes.js";
 import friendsListRouter from "./routes/friendsList.routes.js";
+import messageRouter from "./routes/message.routes.js";
 
 const app = express();
 
@@ -40,5 +41,6 @@ app.get("/", (req, res) => {
 
 app.use("/auth", authRoute);
 app.use("/friendsList", friendsListRouter);
+app.use("/message", messageRouter);
 
 export { app };
