@@ -4,6 +4,7 @@ import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { decryptData } from "../utils/hashService.js";
 
 const checkFriendship = async (user1_Id, user2_Id) => {
   const friendsRes = await FriendsList.findOne({ owner: user1_Id });
@@ -14,21 +15,29 @@ const checkFriendship = async (user1_Id, user2_Id) => {
 };
 
 const loadMessages = asyncHandler(async (req, res) => {
+  console.log("1");
   const { roomId } = req.body;
   if (!roomId) {
     throw new ApiError(400, "roomId is required");
   }
-  const users = roomId.split("_");
+  console.log("2");
+  const decryptedData = decryptData(roomId);
+  const users = decryptedData.split("(_)");
   if (users[0] != req?.user?._id && users[1] != req?.user?._id) {
+    console.log("roomId is:", roomId, " and users are Unauth chat:", users);
     throw new ApiError(400, "Unauthorized Access to the Chat");
   }
+  console.log("3");
 
   const areBothFriends = await checkFriendship(users[0], users[1]);
   if (!areBothFriends) {
     console.log("friends relation:", areBothFriends);
     throw new ApiError(400, "Both are not Friends");
   }
+  console.log("4");
+
   const messages = await Message.find({ roomId: roomId });
+  console.log("5", messages);
 
   return res
     .status(200)
@@ -43,8 +52,10 @@ const loadMessages = asyncHandler(async (req, res) => {
 
 const storeMessage = asyncHandler(async (req, res) => {
   const { roomId, senderId, message } = req.body;
-  const users = roomId.split("_");
+  const decryptedData = await decryptData(roomId);
+  const users = decryptedData.split("(_)");
   if (users[0] != req?.user?._id && users[1] != req?.user?._id) {
+    console.log("decrypted roomId is:", decryptData, "users are:", users);
     throw new ApiError(400, "Unauthorized Access to the Chat");
   }
   const areBothFriends = await checkFriendship(users[0], users[1]);

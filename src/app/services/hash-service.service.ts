@@ -15,7 +15,7 @@ export class HashService {
         throw new Error("Both userId's required to get chatId via encryption");
       }
       usersIds.sort();
-      let data = usersIds[0] + '_' + usersIds[1];
+      let data = usersIds[0] + '(_)' + usersIds[1];
       const jsonData = JSON.stringify(data);
       const encryptedData = CryptoJS.AES.encrypt(
         jsonData,

@@ -5,6 +5,7 @@ import { Message } from 'src/app/Interfaces/message.interface';
 import { AuthService } from 'src/app/services/auth-service.service';
 import { FriendService } from 'src/app/services/friend-service.service';
 import { HashService } from 'src/app/services/hash-service.service';
+import { MessageService } from 'src/app/services/message-service.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 
 @Component({
@@ -138,6 +139,7 @@ export class ChatsComponent implements OnInit {
     private authService: AuthService,
     private friendService: FriendService,
     private hashService: HashService,
+    private messageService: MessageService,
     private webSocketService: WebsocketService,
     private router: Router,
     private activatedRoute: ActivatedRoute
@@ -145,8 +147,6 @@ export class ChatsComponent implements OnInit {
     this.authService.userData.subscribe((data) => {
       this.userData = data;
     });
-
-    this.messages = this.dummyMessages;
   }
 
   ngOnInit() {
@@ -169,16 +169,24 @@ export class ChatsComponent implements OnInit {
     });
   }
 
-  showChatBox() {
-    let users = this.hashService.decryptData(this.chatId)?.split('_');
+  showChatBox = async () => {
+    let users = this.hashService.decryptData(this.chatId)?.split('(_)');
     console.log(this.count++, 'chat box users:', users);
     if (!users) return;
     let friendId = users[0] == this.userData?._id ? users[1] : users[0];
     console.log(this.count++, 'Friendslist before toggling:', this.friendsList);
     this.friendService.toggleFriend(friendId);
-
+    this.messageService.loadMessages(this.chatId).subscribe({
+      next: (data: any) => {
+        console.log('Chat messages are:', data?.data?.messages);
+        this.messages = data?.data?.messages;
+      },
+      error: (error) => {
+        console.log('Error while loading chat messages:', error);
+      },
+    });
     this.webSocketService.listen(`client`).subscribe((data) => {
       console.log('Data from backend socket:', data);
     });
-  }
+  };
 }

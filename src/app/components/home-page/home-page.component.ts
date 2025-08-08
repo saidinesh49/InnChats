@@ -54,7 +54,9 @@ export class HomePageComponent implements OnInit {
 
   validateUserForChatAccess() {
     try {
-      let users = this.hashService.decryptData(this.currentChatId)?.split('_');
+      let users = this.hashService
+        .decryptData(this.currentChatId)
+        ?.split('(_)');
       console.log('validated users are:', users);
       if (
         users &&
