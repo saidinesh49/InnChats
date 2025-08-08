@@ -12,17 +12,19 @@ export class WebsocketService {
     this.socket = io(this.uri);
   }
 
+  register(userId: string) {
+    this.socket.emit('register', userId);
+  }
+
   listen(eventName: string) {
     return new Observable((subscriber) => {
       this.socket.on(eventName, (data: any) => {
-        console.log('received data at service is:', data);
         subscriber.next(data);
       });
     });
   }
 
   emit(eventName: string, data: any) {
-    console.log('emitting data from service is:', data);
     this.socket.emit(eventName, data);
   }
 }

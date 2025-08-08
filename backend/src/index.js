@@ -11,19 +11,29 @@ dotenv.config({
 
 const server = http.createServer(app);
 
+// 👇 expose io for use in controllers
+let io;
+
 connectDB()
   .then(() => {
-    const io = new Server(server, {
+    io = new Server(server, {
       cors: {
         origin: ["http://localhost:4200"],
         methods: ["GET", "POST"],
       },
     });
 
+    // 👇 store io instance in app so we can use it in routes/controllers
+    app.set("io", io);
+
     io.on("connection", (socket) => {
       console.log("Socket connected: ", socket.id);
 
-      socket.on("message:server", (data) => {});
+      // Join the user to a room with their userId
+      socket.on("register", (userId) => {
+        socket.join(userId); // join private room
+        console.log(`User ${userId} joined their room`);
+      });
 
       socket.on("disconnect", () => {
         console.log("Socket disconnected: ", socket.id);

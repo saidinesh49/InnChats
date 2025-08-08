@@ -15,29 +15,27 @@ const checkFriendship = async (user1_Id, user2_Id) => {
 };
 
 const loadMessages = asyncHandler(async (req, res) => {
-  console.log("1");
   const { roomId } = req.body;
   if (!roomId) {
     throw new ApiError(400, "roomId is required");
   }
-  console.log("2");
   const decryptedData = decryptData(roomId);
   const users = decryptedData.split("(_)");
   if (users[0] != req?.user?._id && users[1] != req?.user?._id) {
-    console.log("roomId is:", roomId, " and users are Unauth chat:", users);
     throw new ApiError(400, "Unauthorized Access to the Chat");
   }
-  console.log("3");
+  console.log("roomId is:", roomId, " and users are Unauth chat:", users);
 
   const areBothFriends = await checkFriendship(users[0], users[1]);
   if (!areBothFriends) {
     console.log("friends relation:", areBothFriends);
     throw new ApiError(400, "Both are not Friends");
   }
-  console.log("4");
 
-  const messages = await Message.find({ roomId: roomId });
-  console.log("5", messages);
+  const originalRoomId = users.sort().join("(_)");
+
+  const messages = await Message.find({ roomId: originalRoomId });
+  console.log("message retrieved are:", messages);
 
   return res
     .status(200)
@@ -52,34 +50,50 @@ const loadMessages = asyncHandler(async (req, res) => {
 
 const storeMessage = asyncHandler(async (req, res) => {
   const { roomId, senderId, message } = req.body;
+
   const decryptedData = await decryptData(roomId);
   const users = decryptedData.split("(_)");
-  if (users[0] != req?.user?._id && users[1] != req?.user?._id) {
-    console.log("decrypted roomId is:", decryptData, "users are:", users);
+
+  if (
+    users[0] !== req?.user?._id?.toString() &&
+    users[1] !== req?.user?._id?.toString()
+  ) {
     throw new ApiError(400, "Unauthorized Access to the Chat");
   }
+
   const areBothFriends = await checkFriendship(users[0], users[1]);
   if (!areBothFriends) {
     throw new ApiError(400, "Both are not Friends");
   }
 
-  const newMessage = await Message.create({
-    roomId: roomId,
-    senderId: senderId,
-    message: message,
-  });
+  const originalRoomId = users.sort().join("(_)");
 
+  const newMessage = await Message.create({
+    roomId: originalRoomId,
+    senderId,
+    message,
+  });
   if (!newMessage) {
-    throw new ApiError(
-      400,
-      "Something went wrong while creating and storing new message"
-    );
+    throw new ApiError(400, "Something went wrong while storing new message");
   }
+
+  // 👇 emit message to receiver
+  const receiverId = users[0] === senderId ? users[1] : users[0];
+  const io = req.app.get("io"); // get io from app context
+
+  io.to(receiverId).emit(`message:${receiverId}`, {
+    roomId,
+    senderId,
+    message,
+    _id: newMessage._id,
+    createdAt: newMessage.createdAt,
+  });
 
   return res
     .status(200)
     .json(
-      new ApiResponse(200, { newMessage }, "new message stored successfuly")
+      new ApiResponse(200, { newMessage }, "new message stored successfully")
     );
 });
+
 export { loadMessages, storeMessage };

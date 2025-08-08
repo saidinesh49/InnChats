@@ -21,6 +21,7 @@ export class ChatsComponent implements OnInit {
   chatId!: string;
   messages!: Message[];
   selectedUser!: friend | null;
+  inputMessage!: string | null;
 
   dummyMessages: Message[] = [
     {
@@ -146,6 +147,7 @@ export class ChatsComponent implements OnInit {
   ) {
     this.authService.userData.subscribe((data) => {
       this.userData = data;
+      this.webSocketService.register(this.userData._id);
     });
   }
 
@@ -164,7 +166,9 @@ export class ChatsComponent implements OnInit {
           'Chatid identifed by chat comp:',
           this.chatId
         );
-        if (this.chatId) this.showChatBox();
+        if (this.chatId) {
+          this.showChatBox();
+        }
       });
     });
   }
@@ -185,8 +189,28 @@ export class ChatsComponent implements OnInit {
         console.log('Error while loading chat messages:', error);
       },
     });
-    this.webSocketService.listen(`client`).subscribe((data) => {
-      console.log('Data from backend socket:', data);
-    });
+    this.webSocketService
+      .listen(`message:${this.userData?._id}`)
+      .subscribe((data: any) => {
+        console.log('Data from backend socket:', data);
+        this.messages.push(data);
+      });
   };
+
+  handleSendMessage(event: any) {
+    event.preventDefault();
+    if (!this.inputMessage?.trim()) return;
+    this.messageService
+      .storeMessage(this.chatId, this.userData._id, this.inputMessage)
+      .subscribe({
+        next: (data: any) => {
+          this.inputMessage = '';
+          this.messages.push(data?.data?.newMessage);
+          console.log('Data after sending message:', data);
+        },
+        error: (error) => {
+          console.log('Error sending message:', error);
+        },
+      });
+  }
 }
