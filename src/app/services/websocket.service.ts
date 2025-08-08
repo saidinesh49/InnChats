@@ -10,7 +10,8 @@ export class WebsocketService {
   readonly uri: string = 'https://innchats-backend.vercel.app';
   constructor() {
     this.socket = io(this.uri, {
-      transports: ['websocket'], // 🔐 force WebSocket protocol
+      transports: ['polling', 'websocket'], // Allow polling as fallback
+      upgrade: true, // Allow upgrade to websocket if available
       // withCredentials: true,
     });
   }
