@@ -18,7 +18,11 @@ connectDB()
   .then(() => {
     io = new Server(server, {
       cors: {
-        origin: ["http://localhost:4200"],
+        origin: [
+          "http://localhost:4200",
+          process.env.FRONTEND_URL,
+          "https://innchats.vercel.app",
+        ],
         methods: ["GET", "POST"],
       },
     });

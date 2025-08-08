@@ -15,7 +15,11 @@ app.use(express.static("public"));
 
 // CORS setup
 const corsOptions = {
-  origin: ["http://localhost:4200", process.env.FRONTEND_URL],
+  origin: [
+    "http://localhost:4200",
+    process.env.FRONTEND_URL,
+    "https://innchats.vercel.app",
+  ],
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   allowedHeaders: [
     "Origin",
