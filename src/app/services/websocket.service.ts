@@ -7,9 +7,12 @@ import { Observable } from 'rxjs';
 })
 export class WebsocketService {
   socket: any;
-  readonly uri: string = 'ws://localhost:8000';
+  readonly uri: string = 'https://innchats-backend.vercel.app';
   constructor() {
-    this.socket = io(this.uri);
+    this.socket = io(this.uri, {
+      transports: ['websocket'], // 🔐 force WebSocket protocol
+      withCredentials: true,
+    });
   }
 
   register(userId: string) {
