@@ -1,4 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+  AfterViewChecked,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { friend } from 'src/app/Interfaces/friend.interface';
 import { Message } from 'src/app/Interfaces/message.interface';
@@ -13,7 +19,10 @@ import { WebsocketService } from 'src/app/services/websocket.service';
   templateUrl: './chats.component.html',
   styleUrls: ['./chats.component.css'],
 })
-export class ChatsComponent implements OnInit {
+export class ChatsComponent implements OnInit, AfterViewChecked {
+  @ViewChild('chatMessagesContainer')
+  private chatMessagesContainer!: ElementRef;
+
   count: number = 0;
 
   userData!: any;
@@ -24,6 +33,7 @@ export class ChatsComponent implements OnInit {
   inputMessage!: string | null;
 
   private hasSubscribedToSocket = false;
+  private userScrolled = false;
 
   dummyMessages: Message[] = [
     {
@@ -186,6 +196,28 @@ export class ChatsComponent implements OnInit {
     }
   }
 
+  ngAfterViewChecked() {
+    this.scrollToBottom();
+  }
+
+  scrollToBottom(): void {
+    try {
+      const el = this.chatMessagesContainer.nativeElement;
+      if (!this.userScrolled) {
+        el.scrollTop = el.scrollHeight;
+      }
+    } catch (err) {
+      // ignore errors
+    }
+  }
+
+  onMessagesScroll(event: any) {
+    const el = event.target;
+    const threshold = 20; // px from bottom
+    this.userScrolled =
+      el.scrollHeight - el.scrollTop - el.clientHeight > threshold;
+  }
+
   showChatBox = async () => {
     let users = this.hashService.decryptData(this.chatId)?.split('(_)');
     console.log(this.count++, 'chat box users:', users);
@@ -202,12 +234,6 @@ export class ChatsComponent implements OnInit {
         console.log('Error while loading chat messages:', error);
       },
     });
-    // this.webSocketService
-    //   .listen(`message:${this.userData?._id}`)
-    //   .subscribe((data: any) => {
-    //     console.log('Data from backend socket:', data);
-    //     this.messages.push(data);
-    //   });
   };
 
   handleSendMessage(event: any) {

@@ -16,7 +16,8 @@
     </p>
   </div>
   <div
-    *ngIf="messages && messages?.length; else noMessagesWithFriend"
+    #chatMessagesContainer
+    (scroll)="onMessagesScroll($event)"
     class="chat-messages"
   >
     <div *ngFor="let message of messages">
@@ -38,6 +39,7 @@
       </div>
     </div>
   </div>
+
   <ng-template #noMessagesWithFriend>
     <div
       [ngStyle]="{
