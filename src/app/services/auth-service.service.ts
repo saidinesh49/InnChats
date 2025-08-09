@@ -120,4 +120,14 @@ export class AuthService {
   getAllUsers() {
     return this.http.get<{}>(`${this.apiUrl}/auth/get-all-users`);
   }
+
+  getUploadUrl(fileName: string, fileType: string) {
+    return this.http.post<{ data: any }>(
+      `${this.apiUrl}/aws/generate-upload-url`,
+      {
+        fileName,
+        fileType,
+      }
+    );
+  }
 }

@@ -11,7 +11,7 @@
     [ngStyle]="{
       fontSize: '30px',
       fontWeight: '500',
-      marginBottom: '70px'
+      marginBottom: '30px'
     }"
   >
     InnChats
@@ -144,6 +144,39 @@
     >
       *confirm password should be same as password
     </div>
+    <div
+      class="profile-pic-upload"
+      (click)="fileInput.click()"
+      [class.has-preview]="previewUrl"
+    >
+      <ng-container *ngIf="previewUrl; else placeholder">
+        <img [src]="previewUrl" alt="Profile Preview" />
+        <div class="change-text">Click to change</div>
+      </ng-container>
+
+      <ng-template #placeholder>
+        <p>Click to upload profile picture</p>
+      </ng-template>
+
+      <input
+        type="file"
+        #fileInput
+        accept="image/*"
+        (change)="onFileSelected($event)"
+        hidden
+      />
+    </div>
+
+    <div
+      *ngIf="
+        signupForm.get('profilePic')?.touched &&
+        signupForm.get('profilePic')?.invalid
+      "
+      class="error-message"
+    >
+      *Profile picture is required
+    </div>
+
     <button
       matRipple
       [matRippleColor]="'rgba(0,0,0,0.1)'"

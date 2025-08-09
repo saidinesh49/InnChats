@@ -5,15 +5,14 @@ import bodyParser from "body-parser";
 import authRoute from "./routes/auth.routes.js";
 import friendsListRouter from "./routes/friendsList.routes.js";
 import messageRouter from "./routes/message.routes.js";
+import awsRouter from "./routes/aws.routes.js";
 
 const app = express();
 
-// Basic middleware setup
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.static("public"));
 
-// CORS setup
 const corsOptions = {
   origin: [
     "http://localhost:4200",
@@ -34,11 +33,9 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Body parser setup
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
-// Routes
 app.get("/", (req, res) => {
   return res.json({ message: "Server is running" });
 });
@@ -46,5 +43,6 @@ app.get("/", (req, res) => {
 app.use("/auth", authRoute);
 app.use("/friendsList", friendsListRouter);
 app.use("/message", messageRouter);
+app.use("/aws", awsRouter);
 
 export { app };

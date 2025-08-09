@@ -1,13 +1,15 @@
 import dotenv from "dotenv";
+
+// Load environment variables FIRST before any other imports
+dotenv.config({
+  path: "./src/.env",
+});
+
 import connectDB from "./db/index.js";
 import express from "express";
 import { app } from "./app.js";
 import { Server } from "socket.io";
 import http from "http";
-
-dotenv.config({
-  path: "./src/.env",
-});
 
 const server = http.createServer(app);
 
