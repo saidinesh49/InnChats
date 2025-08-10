@@ -17,6 +17,7 @@ export class SignupComponent {
   signupForm = new FormGroup(
     {
       username: new FormControl('', [Validators.required]),
+      email: new FormControl('', [Validators.required, Validators.email]),
       password: new FormControl('', [Validators.required]),
       confirmPassword: new FormControl('', [Validators.required]),
       fullName: new FormControl('', [Validators.required]),
@@ -27,9 +28,14 @@ export class SignupComponent {
 
   constructor(private authService: AuthService, private router: Router) {}
 
+  googleSignUp() {
+    this.authService.signInWithGoogle();
+  }
+
   getSignupPayload(): any {
     return {
       username: this.signupForm.get('username')?.value || '',
+      email: this.signupForm.get('email')?.value || '',
       password: this.signupForm.get('password')?.value || '',
       fullName: this.signupForm.get('fullName')?.value || '',
       profilePic: this.signupForm.get('profilePic')?.value || '',

@@ -23,12 +23,14 @@ const generateAccessAndRefreshToken = asyncHandler(async (userId) => {
 });
 
 const login = asyncHandler(async (req, res) => {
-  const { username, password } = req.body;
-  if (!(username && password)) {
+  const { usernameOrEmail, password } = req.body;
+  if (!(usernameOrEmail && password)) {
     throw new ApiError(401, "Username & Password is required");
   }
   console.log("userdata received at backend", req.body);
-  const user = await User.findOne({ username });
+  const user = await User.findOne({
+    $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
+  });
   if (!user?._id) {
     throw new ApiError(400, "User doesnot exist");
   }
@@ -61,20 +63,21 @@ const login = asyncHandler(async (req, res) => {
 });
 
 const signup = asyncHandler(async (req, res) => {
-  const { username, fullName, profilePic, password } = req.body;
+  const { username, fullName, profilePic, password, email } = req.body;
   console.log("received data at backend is:", req.body);
-  if (!(username && fullName && password)) {
+  if (!(username && fullName && password && email)) {
     throw new ApiError(400, "All fields are required to signup");
   }
-  const user = await User.findOne({ username });
+  const user = await User.findOne({ $or: [{ username }, { email }] });
 
   if (user?._id) {
-    throw new ApiError(400, "Username already exists/in-use");
+    throw new ApiError(400, "Username or Email already in-use");
   }
 
   const newUser = await User.create({
     fullName: fullName,
     username: username,
+    email: email,
     profilePic: profilePic || "",
     password: password,
   });
@@ -137,4 +140,63 @@ const getAllUsers = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, allUsers, "All users fetched Successfully"));
 });
 
-export { login, signup, getCurrentUser, getAllUsers };
+const googleLogin = asyncHandler(async (req, res) => {
+  const { firstName, email, fullName, profilePic } = req.body;
+  if (!(firstName && email && fullName && profilePic)) {
+    throw new ApiError(400, "All fields are required for google login");
+  }
+
+  const randomNumber = Math.floor(Math.random() * 5000) + 5000;
+  const username = `${firstName}${randomNumber}`;
+
+  const user = await User.findOne({ email: email });
+
+  if (!user?._id) {
+    const newUser = await User.create({
+      username: username,
+      email: email,
+      fullName: fullName,
+      password: email,
+      profilePic: profilePic || "",
+    });
+
+    await newUser.save();
+
+    const accessToken = await newUser.generateAccessToken();
+    const refreshToken = await newUser.generateRefreshToken();
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          _id: newUser?._id,
+          username: newUser?.username,
+          fullName: newUser?.fullName,
+          profilePic: newUser?.profilePic,
+          accessToken: accessToken,
+          refreshToken: refreshToken,
+        },
+        "Google SignedUp Succesfull"
+      )
+    );
+  }
+  const accessToken = await user.generateAccessToken();
+  const refreshToken = await user.generateRefreshToken();
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        _id: user?._id,
+        username: user?.username,
+        fullName: user?.fullName,
+        profilePic: user?.profilePic,
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      },
+      "Google Login Succesfull"
+    )
+  );
+});
+
+export { login, signup, getCurrentUser, getAllUsers, googleLogin };

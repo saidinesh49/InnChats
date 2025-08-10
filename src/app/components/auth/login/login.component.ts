@@ -11,14 +11,18 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 })
 export class LoginComponent {
   loginForm = new FormGroup({
-    username: new FormControl('', [Validators.required]),
+    usernameOrEmail: new FormControl('', [Validators.required]),
     password: new FormControl('', [Validators.required]),
   });
   constructor(private authService: AuthService, private router: Router) {}
 
+  googleLogin() {
+    this.authService.signInWithGoogle();
+  }
+
   getLoginPayLoad(): any {
     return {
-      username: this.loginForm.get('username')?.value || '',
+      usernameOrEmail: this.loginForm.get('usernameOrEmail')?.value || '',
       password: this.loginForm.get('password')?.value || '',
     };
   }

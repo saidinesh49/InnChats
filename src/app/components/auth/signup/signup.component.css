@@ -40,7 +40,7 @@ input:focus {
   cursor: pointer;
   background-color: #fafafa;
   width: 280px; /* increased width */
-  height: 20px; /* decreased height */
+  height: 10px; /* decreased height */
   display: flex;
   align-items: center;
   justify-content: center;

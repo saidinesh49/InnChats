@@ -37,16 +37,9 @@ const uploadFileToAWS = asyncHandler(async (req, res) => {
   // Folder path inside bucket
   const Key = `users/profilepic/${Date.now()}-${fileName}`;
 
-  console.log("🔄 Generating presigned URL for:", {
-    bucket: "innchats" || process.env.AWS_S3_BUCKET_NAME,
-    key: Key,
-    region: "ap-south-1" || process.env.AWS_REGION,
-    contentType: fileType,
-  });
-
   try {
     const command = new PutObjectCommand({
-      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Bucket: "innchats" || process.env.AWS_S3_BUCKET_NAME,
       Key,
       ContentType: fileType,
     });
@@ -55,7 +48,7 @@ const uploadFileToAWS = asyncHandler(async (req, res) => {
 
     const fileUrl = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${Key}`;
 
-    console.log("✅ Presigned URL generated successfully");
+    console.log("✅ Presigned URL generated successfully", uploadUrl);
 
     return res
       .status(200)

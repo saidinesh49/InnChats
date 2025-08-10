@@ -45,8 +45,8 @@
     <input
       type="text"
       name="username"
-      placeholder="Enter username"
-      formControlName="username"
+      placeholder="Enter username or emailId"
+      formControlName="usernameOrEmail"
       [ngStyle]="{
         maxWidth: '100%',
         backgroundColor: '#fff',
@@ -58,11 +58,12 @@
     />
     <div
       *ngIf="
-        loginForm.get('username')?.touched && loginForm.get('username')?.invalid
+        loginForm.get('usernameOrEmail')?.touched &&
+        loginForm.get('usernameOrEmail')?.invalid
       "
       class="error-message"
     >
-      *username is required
+      *username/email is required
     </div>
     <input
       type="password"
@@ -135,6 +136,7 @@
   <button
     matRipple
     class="google-button mat-px-10"
+    (click)="googleLogin()"
     [ngStyle]="{
       marginTop: '8px',
       justifySelf: 'center',

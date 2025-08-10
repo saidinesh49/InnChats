@@ -150,7 +150,7 @@ const getAllNonFriends = asyncHandler(async (req, res) => {
   const nonFriends = await User.find({
     _id: {
       $nin: [
-        mongoose.Types.ObjectId(currentUserId),
+        new mongoose.Types.ObjectId(currentUserId),
         ...(friends?.friends || []),
       ],
     },

@@ -1,17 +1,10 @@
 import { Injectable } from '@angular/core';
-import {
-  BehaviorSubject,
-  catchError,
-  map,
-  Observable,
-  Observer,
-  of,
-  Subject,
-  tap,
-} from 'rxjs';
+import { BehaviorSubject, tap } from 'rxjs';
 import { User } from '../Interfaces/user.interface';
 import { HttpClient } from '@angular/common/http';
 import { FriendService } from './friend-service.service';
+import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
@@ -24,14 +17,50 @@ export class AuthService {
     fullName: '',
     profilePic: '',
   });
+  private provider!: any;
+  private auth!: any;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private router: Router) {
     this.loadUserFromStorage();
+    this.provider = new GoogleAuthProvider();
+    this.auth = getAuth();
   }
 
   private loadUserFromStorage(): void {}
 
-  loginUser(data: { username: string; password: string }) {
+  signInWithGoogle() {
+    signInWithPopup(this.auth, this.provider)
+      .then((data) => {
+        const tokenResponse: any = (data as any)?._tokenResponse;
+        console.log('Data received after Google login is:', tokenResponse);
+        this.http
+          .post<{ data: any }>(`${this.apiUrl}/auth/google-login`, {
+            firstName: tokenResponse?.firstName,
+            fullName: tokenResponse?.fullName,
+            email: tokenResponse?.email,
+            profilePic: tokenResponse?.photoUrl,
+          })
+          .subscribe({
+            next: (data: any) => {
+              console.log('Data after google backend login:', data);
+              this.setCookie('accessToken', data?.data?.accessToken, {});
+              this.setCurrentUser(data?.data);
+              this.router.navigate(['/home']);
+            },
+            error: (error) => {
+              console.log(
+                'Error occured while google login at backend:',
+                error
+              );
+            },
+          });
+      })
+      .catch((error) => {
+        console.log('Error Something went wrong while Google Sign-in:', error);
+      });
+  }
+
+  loginUser(data: { usernameOrEmail: string; password: string }) {
     console.log('passed data at service for login', data);
     return this.http
       .post<{ data: User }>(`${this.apiUrl}/auth/login`, {

@@ -11,7 +11,7 @@
     [ngStyle]="{
       fontSize: '30px',
       fontWeight: '500',
-      marginBottom: '30px'
+      marginBottom: '20px'
     }"
   >
     InnChats
@@ -88,7 +88,28 @@
     >
       *username is required
     </div>
-
+    <input
+      type="text"
+      name="email"
+      placeholder="Enter you email ID"
+      formControlName="email"
+      [ngStyle]="{
+        maxWidth: '100%',
+        backgroundColor: '#fff',
+        border: '1px solid #ccc',
+        borderRadius: '5px',
+        padding: '6px 10px',
+        color: '#333',
+      }"
+    />
+    <div
+      *ngIf="
+        signupForm.get('email')?.touched && signupForm.get('email')?.invalid
+      "
+      class="error-message"
+    >
+      *email is required/and should be in correct format
+    </div>
     <input
       type="password"
       name="password"
@@ -225,6 +246,7 @@
   <button
     matRipple
     class="google-button mat-px-10"
+    (click)="googleSignUp()"
     [ngStyle]="{
       marginTop: '8px',
       justifySelf: 'center',
