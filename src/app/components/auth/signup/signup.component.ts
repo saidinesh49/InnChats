@@ -12,7 +12,7 @@ import { matchPasswordValidator } from 'src/app/utils/services/matchPasswords';
 export class SignupComponent {
   uploading = false;
   previewUrl: string | ArrayBuffer | null | any = null;
-  selectedFile: File | null = null;
+  selectedFile: any;
 
   signupForm = new FormGroup(
     {
@@ -64,41 +64,66 @@ export class SignupComponent {
       return;
     }
 
-    if (!this.selectedFile) {
+    if (!this.selectedFile || this.selectedFile == null) {
       this.signupForm.get('profilePic')?.setErrors({ required: true });
       return;
     }
 
     this.uploading = true;
 
+    // Step 1: Get presigned URL from backend
     this.authService
       .getUploadUrl(this.selectedFile.name, this.selectedFile.type)
       .subscribe({
         next: (data: any) => {
           const uploadUrl = data?.data?.uploadUrl;
           const fileUrl = data?.data?.fileUrl;
-          console.log('received dat form backend after S3 upload:', data);
 
-          this.signupForm.patchValue({ profilePic: fileUrl });
+          console.log('Presigned URL:', uploadUrl);
 
-          const payload = this.getSignupPayload();
-          this.authService.signup(payload).subscribe({
-            next: (res: any) => {
-              this.uploading = false;
-              const userData = {
-                _id: res?.data?._id,
-                username: res.data?.username,
-                fullName: res.data?.fullName,
-                profilePic: res.data?.profilePic,
-              };
-              this.authService.setCurrentUser(userData);
-              this.router.navigate(['/home']);
+          // Step 2: Upload file to S3 directly
+          fetch(uploadUrl, {
+            method: 'PUT',
+            body: this.selectedFile,
+            headers: {
+              'Content-Type': this.selectedFile.type,
             },
-            error: (err) => {
-              console.error('Signup error', err);
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error('S3 upload failed');
+              }
+
+              console.log('✅ File uploaded to S3 successfully');
+
+              // Step 3: Use fileUrl in signup payload
+              this.signupForm.patchValue({ profilePic: fileUrl });
+
+              const payload = this.getSignupPayload();
+
+              // Step 4: Call your signup API
+              this.authService.signup(payload).subscribe({
+                next: (res: any) => {
+                  this.uploading = false;
+                  const userData = {
+                    _id: res?.data?._id,
+                    username: res.data?.username,
+                    fullName: res.data?.fullName,
+                    profilePic: res.data?.profilePic,
+                  };
+                  this.authService.setCurrentUser(userData);
+                  this.router.navigate(['/home']);
+                },
+                error: (err) => {
+                  console.error('Signup error', err);
+                  this.uploading = false;
+                },
+              });
+            })
+            .catch((err) => {
+              console.error('Upload to S3 error:', err);
               this.uploading = false;
-            },
-          });
+            });
         },
         error: (err) => {
           console.error('Get upload URL error', err);

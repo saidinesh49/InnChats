@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl: string = 'https://innchats.onrender.com'; //changes needed
+  private apiUrl: string = 'http://localhost:8000'; //changes needed
   userData = new BehaviorSubject<User>({
     _id: '',
     username: '',
