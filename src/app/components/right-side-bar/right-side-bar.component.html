@@ -2,25 +2,87 @@
   [ngStyle]="{
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
+    alignItems: 'center'
   }"
   class="bar-container"
 >
   <div *ngIf="userData; else noUserData" class="user">
-    <img
-      [src]="userData.profilePic"
-      [ngStyle]="{ borderRadius: '50%', marginX: '50px' }"
-      class="user-profile-pic"
-    />
-    <strong>{{ userData.fullName }}</strong>
-    <button
-      matRipple
-      [matRippleColor]="'rgba(0,0,0,0.1)'"
-      class="inn-button mat-px-10"
-    >
-      Edit Your Profile
-    </button>
+    <div style="position: relative; width: 128px; height: 128px">
+      <img
+        [src]="userData.profilePic"
+        [ngStyle]="{ borderRadius: '50%', marginX: '50px' }"
+        class="user-profile-pic"
+      />
+      <div
+        *ngIf="isEditing"
+        (click)="triggerFileInput()"
+        class="profile-pic-overlay"
+        title="Change Profile Picture"
+      >
+        <!-- Camera icon or just text for now -->
+        📷
+      </div>
+      <input
+        type="file"
+        accept="image/*"
+        hidden
+        #fileInput
+        (change)="handleFileChange($event)"
+      />
+    </div>
+
+    <ng-container *ngIf="!isEditing; else editProfileForm">
+      <strong>{{ userData.fullName }}</strong>
+      <button
+        matRipple
+        [matRippleColor]="'rgba(0,0,0,0.1)'"
+        class="inn-button mat-px-10"
+        (click)="toggleEdit()"
+      >
+        Edit Your Profile
+      </button>
+    </ng-container>
+
+    <ng-template #editProfileForm>
+      <button
+        (click)="updateProfilePic(selectedFile)"
+        [disabled]="!selectedFile"
+        class="inn-button"
+        style="width: 100%"
+      >
+        Update Profile Picture
+      </button>
+
+      <input
+        type="text"
+        [(ngModel)]="userData.username"
+        placeholder="Username"
+        class="edit-input"
+      />
+      <input
+        type="text"
+        [(ngModel)]="userData.fullName"
+        placeholder="Full Name"
+        class="edit-input"
+      />
+      <button (click)="updateProfile()" class="inn-button" style="width: 100%">
+        Update Profile
+      </button>
+      <button
+        (click)="toggleEdit()"
+        class="inn-button"
+        style="
+          background-color: #ccc;
+          margin-top: 5px;
+          width: 100%;
+          color: black;
+        "
+      >
+        Cancel
+      </button>
+    </ng-template>
   </div>
+
   <ng-template #noUserData>
     <p
       [ngStyle]="{
@@ -30,9 +92,10 @@
         color: '#777'
       }"
     >
-      No preivew
+      No preview
     </p>
   </ng-template>
+
   <button
     (click)="handleLogout()"
     matRipple
@@ -44,7 +107,7 @@
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
-      cursor: 'pointer',
+      cursor: 'pointer'
     }"
   >
     Logout

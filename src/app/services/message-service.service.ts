@@ -7,7 +7,7 @@ import { AuthService } from './auth-service.service';
   providedIn: 'root',
 })
 export class MessageService {
-  readonly apiUrl: string = 'http://localhost:8000'; //changes needed
+  readonly apiUrl: string = 'https://innchats.onrender.com'; //changes needed
   messages!: Message[];
   constructor(private authService: AuthService, private http: HttpClient) {}
 

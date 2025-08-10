@@ -2,6 +2,17 @@ import { User } from "../models/user.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
+
+const s3 = new S3Client({
+  region: "ap-south-1",
+  credentials: {
+    accessKeyId: "AKIAT4JNAEFPN4ISX5Q4",
+    secretAccessKey: "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",
+  },
+  maxAttempts: 3,
+  retryMode: "adaptive",
+});
 
 const generateAccessAndRefreshToken = asyncHandler(async (userId) => {
   if (!userId) {
@@ -199,4 +210,90 @@ const googleLogin = asyncHandler(async (req, res) => {
   );
 });
 
-export { login, signup, getCurrentUser, getAllUsers, googleLogin };
+const editProfileDetails = asyncHandler(async (req, res) => {
+  const { newFullName, newPassword, newUsername } = req.body;
+  const userId = req?.user?._id;
+
+  if (!userId) throw new ApiError(401, "Unauthorized");
+
+  // Update non-password fields first
+  const updateData = {};
+  if (newFullName) updateData.fullName = newFullName;
+  if (newUsername) updateData.username = newUsername;
+
+  const updatedUser = await User.findOneAndUpdate(
+    { _id: userId },
+    { $set: updateData },
+    { new: true, runValidators: true }
+  );
+
+  if (newPassword != null && newPassword !== "") {
+    updatedUser.password = newPassword;
+    await updatedUser.save();
+  }
+
+  if (!updatedUser) throw new ApiError(404, "User not found");
+
+  const userToReturn = updatedUser.toObject();
+  delete userToReturn.password;
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, userToReturn, "Profile updated successfully"));
+});
+
+const updateProfilePic = asyncHandler(async (req, res) => {
+  const { newProfilePicUrl } = req.body;
+  if (!req?.user?._id) {
+    throw new ApiError(401, "Unauthorized User");
+  }
+
+  // Find user first
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  // Check if current profilePic is an S3 URL to delete old pic if needed
+  const currentPicUrl = user.profilePic || "";
+  const s3Domain = `https://innchats.s3.ap-south-1.amazonaws.com/`;
+
+  if (currentPicUrl.startsWith(s3Domain)) {
+    // Extract Key from URL
+    const key = currentPicUrl.replace(s3Domain, "");
+
+    try {
+      // Delete old object from S3
+      const deleteCommand = new DeleteObjectCommand({
+        Bucket: "innchats",
+        Key: key,
+      });
+      await s3.send(deleteCommand);
+    } catch (error) {
+      console.warn("Warning: Could not delete old profile pic from S3:", error);
+    }
+  }
+
+  user.profilePic = newProfilePicUrl;
+  await user.save({ validateBeforeSave: false });
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        user,
+      },
+      "profile pic update successfuly"
+    )
+  );
+});
+
+export {
+  login,
+  signup,
+  getCurrentUser,
+  getAllUsers,
+  googleLogin,
+  editProfileDetails,
+  updateProfilePic,
+};

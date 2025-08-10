@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class WebsocketService {
   socket: any;
-  readonly uri: string = 'http://localhost:8000';
+  readonly uri: string = 'https://innchats.onrender.com';
   constructor() {
     this.socket = io(this.uri, {
       transports: ['polling', 'websocket'], // Allow polling as fallback
