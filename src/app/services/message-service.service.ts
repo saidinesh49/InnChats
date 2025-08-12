@@ -7,16 +7,23 @@ import { AuthService } from './auth-service.service';
   providedIn: 'root',
 })
 export class MessageService {
-  readonly apiUrl: string = 'https://innchats.onrender.com'; //changes needed
+  readonly apiUrl: string = 'https://innchats.onrender.com';
   messages!: Message[];
+
   constructor(private authService: AuthService, private http: HttpClient) {}
 
-  loadMessages(chatId: string) {
+  loadMessages(
+    chatId: string,
+    beforeMessageId?: string | null,
+    limit: number = 15
+  ) {
     const accessToken = this.authService.getCookie('accessToken');
     return this.http.post<{ data: any }>(
       `${this.apiUrl}/message/load-messages`,
       {
         roomId: chatId,
+        beforeMessageId: beforeMessageId || null,
+        limit,
       },
       {
         headers: {

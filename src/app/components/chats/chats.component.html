@@ -1,45 +1,60 @@
 <div *ngIf="selectedUser; else noSelectedUser" class="chat-container">
+  <!-- Chat header -->
   <div class="chat-box-header">
     <img
       [src]="selectedUser.profilePic"
       [ngStyle]="{
         width: '40px',
         height: '40px',
-        borderRadius: '50%',
-    }"
+        borderRadius: '50%'
+      }"
+      alt="User profile pic"
     />
     <p [ngStyle]="{ marginTop: '10px' }">
       {{ selectedUser.fullName }}
-      <a [ngStyle]="{ color: 'gray', fontWeight: '300' }"
-        >({{ selectedUser.username }})</a
-      >
+      <a [ngStyle]="{ color: 'gray', fontWeight: '300' }">
+        ({{ selectedUser.username }})
+      </a>
     </p>
   </div>
   <div
     #chatMessagesContainer
     (scroll)="onMessagesScroll($event)"
     class="chat-messages"
+    style="overflow-y: auto; height: 400px; padding: 10px"
   >
-    <div *ngFor="let message of messages">
-      <div
-        [ngClass]="{
-          'message-container-user': message.senderId === userData?._id,
-          'message-container-friend': message.senderId !== userData?._id
-        }"
-      >
-        <p
-          [ngClass]="
-            message.senderId === userData?._id
-              ? 'usersMessage'
-              : 'friendsMessage'
-          "
-        >
-          {{ message.message }}
-        </p>
-      </div>
+    <!-- Loading older messages (only when not the first page) -->
+    <div
+      *ngIf="loadingOlderMessages && messages.length > 0"
+      style="text-align: center; padding: 10px; color: gray"
+    >
+      Loading older messages...
     </div>
+
+    <!-- Show messages if available -->
+    <ng-container *ngIf="messages.length > 0; else noMessagesWithFriend">
+      <div *ngFor="let message of messages">
+        <div
+          [ngClass]="{
+            'message-container-user': message.senderId === userData?._id,
+            'message-container-friend': message.senderId !== userData?._id
+          }"
+        >
+          <p
+            [ngClass]="
+              message.senderId === userData?._id
+                ? 'usersMessage'
+                : 'friendsMessage'
+            "
+          >
+            {{ message.message }}
+          </p>
+        </div>
+      </div>
+    </ng-container>
   </div>
 
+  <!-- Empty chat message -->
   <ng-template #noMessagesWithFriend>
     <div
       [ngStyle]="{
@@ -47,13 +62,19 @@
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        color: 'gray'
+        color: 'gray',
+        height: '100%'
       }"
     >
       Chat Box is Empty, start Conversation
     </div>
   </ng-template>
-  <div class="chat-box-footer">
+
+  <!-- Footer -->
+  <div
+    class="chat-box-footer"
+    style="display: flex; align-items: center; padding: 5px 10px"
+  >
     <input
       type="text"
       [(ngModel)]="inputMessage"
@@ -62,9 +83,9 @@
       [ngStyle]="{
         border: '2px solid #d2b105',
         borderRadius: '5px',
-        width: '90%',
+        flexGrow: '1',
         height: '30px',
-        padding: '0px 0px 0px 20px',
+        padding: '0 20px',
         outline: 'none'
       }"
     />
@@ -73,11 +94,18 @@
       [matRippleColor]="'rgba(0,0,0,0.1)'"
       class="send-icon"
       (click)="handleSendMessage($event)"
+      style="cursor: pointer; margin-left: 10px"
     >
-      <img src="../../../assets/send-icon.png" class="send-icon" />
+      <img
+        src="../../../assets/send-icon.png"
+        class="send-icon"
+        alt="Send message"
+      />
     </div>
   </div>
 </div>
+
+<!-- If no user is selected -->
 <ng-template #noSelectedUser>
   <div
     [ngStyle]="{
@@ -91,8 +119,7 @@
       color: 'gray',
       backgroundColor: 'rgb(250, 252, 255)',
       borderRight: '1.5px solid #dedede',
-      borderLeft: '1.5px solid #dedede',
-
+      borderLeft: '1.5px solid #dedede'
     }"
   >
     <p>No Preview</p>

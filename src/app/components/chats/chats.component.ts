@@ -4,6 +4,7 @@ import {
   OnInit,
   ViewChild,
   AfterViewChecked,
+  AfterViewInit,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { friend } from 'src/app/Interfaces/friend.interface';
@@ -19,134 +20,29 @@ import { WebsocketService } from 'src/app/services/websocket.service';
   templateUrl: './chats.component.html',
   styleUrls: ['./chats.component.css'],
 })
-export class ChatsComponent implements OnInit, AfterViewChecked {
+export class ChatsComponent implements OnInit, AfterViewChecked, AfterViewInit {
   @ViewChild('chatMessagesContainer')
   private chatMessagesContainer!: ElementRef;
-
-  count: number = 0;
 
   userData!: any;
   friendsList!: any;
   chatId!: string;
-  messages!: Message[];
+  messages: Message[] = [];
   selectedUser!: friend | null;
   inputMessage!: string | null;
 
   private hasSubscribedToSocket = false;
   private userScrolled = false;
 
-  dummyMessages: Message[] = [
-    {
-      roomId: 'room1',
-      senderId: '688c6e31c74a1c48e3bbe6d9',
-      message: 'Hey, how are you?',
-    },
-    {
-      roomId: 'room1',
-      senderId: '68905dabb465628278b70558',
-      message: 'I am good, thanks! How about you?',
-    },
-    {
-      roomId: 'room1',
-      senderId: '688c6e31c74a1c48e3bbe6d9',
-      message: 'Doing well. Had lunch?',
-    },
-    {
-      roomId: 'room1',
-      senderId: '68905dabb465628278b70558',
-      message: 'Yes, just now. You?',
-    },
-    {
-      roomId: 'room1',
-      senderId: '688c6e31c74a1c48e3bbe6d9',
-      message: 'Not yet, waiting for you 😄',
-    },
-    {
-      roomId: 'room1',
-      senderId: '68905dabb465628278b70558',
-      message: 'Haha, let’s eat together next time!',
-    },
-    {
-      roomId: 'room1',
-      senderId: '688c6e31c74a1c48e3bbe6d9',
-      message: 'Sure! I’d love that.',
-    },
-    {
-      roomId: 'room2',
-      senderId: '688c6e31c74a1c48e3bbe6d9',
-      message: 'Are we meeting today?',
-    },
-    {
-      roomId: 'room2',
-      senderId: '68905dabb465628278b70558',
-      message: 'Yes, let’s meet at 5 PM.',
-    },
-    {
-      roomId: 'room2',
-      senderId: '688c6e31c74a1c48e3bbe6d9',
-      message: 'Perfect. At the usual place?',
-    },
-    {
-      roomId: 'room2',
-      senderId: '68905dabb465628278b70558',
-      message: 'Yes, Cafe 92 it is.',
-    },
-    {
-      roomId: 'room2',
-      senderId: '688c6e31c74a1c48e3bbe6d9',
-      message: 'Awesome, see you there!',
-    },
-    {
-      roomId: 'room2',
-      senderId: '68905dabb465628278b70558',
-      message: 'Don’t be late 😜',
-    },
-    {
-      roomId: 'room3',
-      senderId: '688c6e31c74a1c48e3bbe6d9',
-      message: 'Did you finish the assignment?',
-    },
-    {
-      roomId: 'room3',
-      senderId: '68905dabb465628278b70558',
-      message: 'Not yet, working on it now.',
-    },
-    {
-      roomId: 'room3',
-      senderId: '688c6e31c74a1c48e3bbe6d9',
-      message: 'Need any help?',
-    },
-    {
-      roomId: 'room3',
-      senderId: '68905dabb465628278b70558',
-      message: 'Yeah maybe with question 5.',
-    },
-    {
-      roomId: 'room3',
-      senderId: '688c6e31c74a1c48e3bbe6d9',
-      message: 'Cool, I’ll explain it in a bit.',
-    },
-    {
-      roomId: 'room3',
-      senderId: '68905dabb465628278b70558',
-      message: 'Thanks! You’re the best!',
-    },
-    {
-      roomId: 'room3',
-      senderId: '688c6e31c74a1c48e3bbe6d9',
-      message: 'Haha, anytime! 😊',
-    },
-    {
-      roomId: 'room3',
-      senderId: '68905dabb465628278b70558',
-      message: 'Ill treat you to coffee later 😁',
-    },
-    {
-      roomId: 'room3',
-      senderId: '688c6e31c74a1c48e3bbe6d9',
-      message: 'Deal!',
-    },
-  ];
+  // Loading flags
+  loadingOlderMessages = false;
+  allMessagesLoaded = false;
+
+  // Tracking oldest message to prevent duplicates
+  oldestMessageId: string | null = null;
+  messagesLimit = 15;
+
+  private pendingLoadMessages = false; // wait for view init before loading
 
   constructor(
     private authService: AuthService,
@@ -158,6 +54,7 @@ export class ChatsComponent implements OnInit, AfterViewChecked {
     private activatedRoute: ActivatedRoute
   ) {
     this.authService.userData.subscribe((data) => {
+      this.resetChat();
       this.userData = data;
       this.webSocketService.register(this.userData._id);
     });
@@ -166,20 +63,21 @@ export class ChatsComponent implements OnInit, AfterViewChecked {
   ngOnInit() {
     this.friendService.selectedUser.subscribe((user) => {
       this.selectedUser = user;
-      console.log(this.count++, 'selectedUser at chat:', this.selectedUser);
+      this.resetChat();
+      this.pendingLoadMessages = true;
     });
 
     this.friendService.friendsList.subscribe((friends) => {
       this.friendsList = friends;
       this.activatedRoute.queryParams.subscribe((params) => {
         this.chatId = params['chatId'];
-        console.log(
-          this.count++,
-          'Chatid identifed by chat comp:',
-          this.chatId
-        );
         if (this.chatId) {
           this.showChatBox();
+        }
+
+        if (this.pendingLoadMessages && this.chatId) {
+          this.loadInitialMessages();
+          this.pendingLoadMessages = false;
         }
       });
     });
@@ -188,67 +86,150 @@ export class ChatsComponent implements OnInit, AfterViewChecked {
       this.webSocketService
         .listen(`message:${this.userData?._id}`)
         .subscribe((data: any) => {
-          console.log('Data from backend socket:', data);
-          this.messages.push(data);
+          // Avoid duplicate push if message already exists
+          if (!this.messages.find((m) => m._id === data._id)) {
+            this.messages.push(data);
+            this.scrollToBottomIfNotScrolled();
+          }
         });
-
       this.hasSubscribedToSocket = true;
     }
   }
 
-  ngAfterViewChecked() {
-    this.scrollToBottom();
+  ngAfterViewInit() {
+    if (this.chatMessagesContainer) {
+      this.chatMessagesContainer.nativeElement.addEventListener(
+        'scroll',
+        (event: any) => this.onMessagesScroll(event)
+      );
+    }
   }
 
-  scrollToBottom(): void {
-    try {
-      const el = this.chatMessagesContainer.nativeElement;
-      if (!this.userScrolled) {
-        el.scrollTop = el.scrollHeight;
-      }
-    } catch (err) {
-      // ignore errors
-    }
+  ngAfterViewChecked() {
+    this.scrollToBottomIfNotScrolled();
+  }
+
+  resetChat() {
+    this.messages = [];
+    this.loadingOlderMessages = false;
+    this.allMessagesLoaded = false;
+    this.userScrolled = false;
+    this.oldestMessageId = null;
+  }
+
+  loadInitialMessages() {
+    this.loadMessages(null);
+  }
+
+  loadMessages(beforeMessageId: string | null) {
+    if (this.loadingOlderMessages || this.allMessagesLoaded || !this.chatId)
+      return;
+
+    this.loadingOlderMessages = true;
+    const el = this.chatMessagesContainer?.nativeElement;
+    const oldScrollHeight = el?.scrollHeight || 0;
+
+    this.messageService
+      .loadMessages(this.chatId, beforeMessageId, this.messagesLimit)
+      .subscribe({
+        next: (res: any) => {
+          const loadedMessages = res?.data?.messages || [];
+          console.log(
+            'loading more messages....and those are:',
+            loadedMessages
+          );
+
+          if (loadedMessages.length < this.messagesLimit) {
+            this.allMessagesLoaded = true;
+          }
+
+          if (beforeMessageId === null) {
+            // First load
+            this.messages = loadedMessages;
+          } else {
+            // Prepend without duplicates
+            const existingIds = new Set(this.messages.map((m) => m._id));
+            const uniqueNew = loadedMessages.filter(
+              (m: Message) => !existingIds.has(m._id)
+            );
+            this.messages = [...uniqueNew, ...this.messages];
+          }
+
+          // Update oldestMessageId
+          if (this.messages.length > 0) {
+            this.oldestMessageId = this.messages[0]._id;
+          }
+
+          this.loadingOlderMessages = false;
+
+          if (beforeMessageId !== null && el) {
+            setTimeout(() => {
+              const newScrollHeight = el.scrollHeight;
+              el.scrollTop = newScrollHeight - oldScrollHeight;
+            }, 0);
+          }
+        },
+        error: (err) => {
+          console.error('Error loading messages:', err);
+          this.loadingOlderMessages = false;
+        },
+      });
   }
 
   onMessagesScroll(event: any) {
     const el = event.target;
-    const threshold = 20; // px from bottom
+    const thresholdFromBottom = 20;
+
     this.userScrolled =
-      el.scrollHeight - el.scrollTop - el.clientHeight > threshold;
+      el.scrollHeight - el.scrollTop - el.clientHeight > thresholdFromBottom;
+
+    if (
+      el.scrollTop === 0 &&
+      !this.allMessagesLoaded &&
+      !this.loadingOlderMessages
+    ) {
+      this.loadMessages(this.oldestMessageId);
+    }
   }
 
-  showChatBox = async () => {
+  scrollToBottomIfNotScrolled() {
+    try {
+      const el = this.chatMessagesContainer?.nativeElement;
+      if (el && !this.userScrolled) {
+        el.scrollTop = el.scrollHeight;
+      }
+    } catch {}
+  }
+
+  showChatBox() {
     let users = this.hashService.decryptData(this.chatId)?.split('(_)');
-    console.log(this.count++, 'chat box users:', users);
     if (!users) return;
-    let friendId = users[0] == this.userData?._id ? users[1] : users[0];
-    console.log(this.count++, 'Friendslist before toggling:', this.friendsList);
+
+    let friendId = users[0] === this.userData?._id ? users[1] : users[0];
     this.friendService.toggleFriend(friendId);
-    this.messageService.loadMessages(this.chatId).subscribe({
-      next: (data: any) => {
-        console.log('Chat messages are:', data?.data?.messages);
-        this.messages = data?.data?.messages;
-      },
-      error: (error) => {
-        console.log('Error while loading chat messages:', error);
-      },
-    });
-  };
+
+    this.resetChat();
+    this.pendingLoadMessages = true;
+  }
 
   handleSendMessage(event: any) {
     event.preventDefault();
     if (!this.inputMessage?.trim()) return;
+
     this.messageService
       .storeMessage(this.chatId, this.userData._id, this.inputMessage)
       .subscribe({
         next: (data: any) => {
           this.inputMessage = '';
-          this.messages.push(data?.data?.newMessage);
-          console.log('Data after sending message:', data);
+          if (
+            !this.messages.find((m) => m._id === data?.data?.newMessage?._id)
+          ) {
+            this.messages.push(data?.data?.newMessage);
+          }
+          this.scrollToBottomIfNotScrolled();
         },
         error: (error) => {
-          console.log('Error sending message:', error);
+          console.error('Error sending message:', error);
         },
       });
   }

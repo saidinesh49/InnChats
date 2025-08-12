@@ -15,35 +15,42 @@ const checkFriendship = async (user1_Id, user2_Id) => {
 };
 
 const loadMessages = asyncHandler(async (req, res) => {
-  const { roomId } = req.body;
-  if (!roomId) {
-    throw new ApiError(400, "roomId is required");
-  }
+  const { roomId, beforeMessageId = null, limit = 15 } = req.body;
+  if (!roomId) throw new ApiError(400, "roomId is required");
+
   const decryptedData = decryptData(roomId);
   const users = decryptedData.split("(_)");
+
   if (users[0] != req?.user?._id && users[1] != req?.user?._id) {
     throw new ApiError(400, "Unauthorized Access to the Chat");
   }
-  console.log("roomId is:", roomId, " and users are Unauth chat:", users);
 
   const areBothFriends = await checkFriendship(users[0], users[1]);
-  if (!areBothFriends) {
-    console.log("friends relation:", areBothFriends);
-    throw new ApiError(400, "Both are not Friends");
-  }
+  if (!areBothFriends) throw new ApiError(400, "Both are not Friends");
 
   const originalRoomId = users.sort().join("(_)");
 
-  const messages = await Message.find({ roomId: originalRoomId });
-  console.log("message retrieved are:", messages);
+  let query = { roomId: originalRoomId };
+  if (beforeMessageId) {
+    const beforeMsg = await Message.findById(beforeMessageId);
+    if (beforeMsg) {
+      query.createdAt = { $lt: beforeMsg.createdAt };
+    }
+  }
+
+  const messages = await Message.find(query)
+    .sort({ createdAt: -1 })
+    .limit(limit || 15);
+
+  console.log("messages fetched are:", messages);
 
   return res
     .status(200)
     .json(
       new ApiResponse(
         200,
-        { messages: messages },
-        "Messages loaded Successfuly"
+        { messages: messages.reverse() },
+        "Messages loaded successfully"
       )
     );
 });
