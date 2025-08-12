@@ -21,8 +21,7 @@ import { WebsocketService } from 'src/app/services/websocket.service';
   styleUrls: ['./chats.component.css'],
 })
 export class ChatsComponent implements OnInit, AfterViewChecked, AfterViewInit {
-  @ViewChild('chatMessagesContainer')
-  private chatMessagesContainer!: ElementRef;
+  @ViewChild('chatMessagesContainer') chatMessagesContainer!: ElementRef;
 
   userData!: any;
   friendsList!: any;
@@ -109,6 +108,21 @@ export class ChatsComponent implements OnInit, AfterViewChecked, AfterViewInit {
     this.scrollToBottomIfNotScrolled();
   }
 
+  calculateMessageLimit() {
+    const container = this.chatMessagesContainer?.nativeElement;
+    if (!container) return;
+
+    const containerHeight = container.clientHeight;
+
+    // Estimate average message height (adjust as needed)
+    const averageMessageHeight = 60; // in pixels
+
+    const estimatedLimit = Math.floor(containerHeight / averageMessageHeight);
+    this.messagesLimit = estimatedLimit;
+
+    console.log('Estimated message limit:', this.messagesLimit);
+  }
+
   resetChat() {
     this.messages = [];
     this.loadingOlderMessages = false;
@@ -146,6 +160,12 @@ export class ChatsComponent implements OnInit, AfterViewChecked, AfterViewInit {
           if (beforeMessageId === null) {
             // First load
             this.messages = loadedMessages;
+            setTimeout(() => {
+              if (el) {
+                el.scrollTop = el.scrollHeight;
+                this.userScrolled = false; // reset so new messages still auto-scroll
+              }
+            }, 0);
           } else {
             // Prepend without duplicates
             const existingIds = new Set(this.messages.map((m) => m._id));
@@ -153,6 +173,12 @@ export class ChatsComponent implements OnInit, AfterViewChecked, AfterViewInit {
               (m: Message) => !existingIds.has(m._id)
             );
             this.messages = [...uniqueNew, ...this.messages];
+            if (el) {
+              setTimeout(() => {
+                const newScrollHeight = el.scrollHeight;
+                el.scrollTop = newScrollHeight - oldScrollHeight;
+              }, 0);
+            }
           }
 
           // Update oldestMessageId
@@ -161,13 +187,7 @@ export class ChatsComponent implements OnInit, AfterViewChecked, AfterViewInit {
           }
 
           this.loadingOlderMessages = false;
-
-          if (beforeMessageId !== null && el) {
-            setTimeout(() => {
-              const newScrollHeight = el.scrollHeight;
-              el.scrollTop = newScrollHeight - oldScrollHeight;
-            }, 0);
-          }
+          this.calculateMessageLimit();
         },
         error: (err) => {
           console.error('Error loading messages:', err);
@@ -178,13 +198,12 @@ export class ChatsComponent implements OnInit, AfterViewChecked, AfterViewInit {
 
   onMessagesScroll(event: any) {
     const el = event.target;
-    const thresholdFromBottom = 20;
+    const thresholdFromTop = 5;
 
-    this.userScrolled =
-      el.scrollHeight - el.scrollTop - el.clientHeight > thresholdFromBottom;
+    this.userScrolled = el.scrollHeight - el.scrollTop - el.clientHeight > 20;
 
     if (
-      el.scrollTop === 0 &&
+      el.scrollTop <= thresholdFromTop &&
       !this.allMessagesLoaded &&
       !this.loadingOlderMessages
     ) {
@@ -196,7 +215,7 @@ export class ChatsComponent implements OnInit, AfterViewChecked, AfterViewInit {
     try {
       const el = this.chatMessagesContainer?.nativeElement;
       if (el && !this.userScrolled) {
-        el.scrollTop = el.scrollHeight;
+        el.scrollTop = el.scrollHeight; // jump to bottom
       }
     } catch {}
   }

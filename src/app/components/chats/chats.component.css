@@ -22,6 +22,7 @@
 .chat-messages {
   flex: 100px; /* take all available space */
   overflow-y: auto; /* this makes it scrollable */
+  align-content: end;
   background: #fff;
   scrollbar-width: none;
 }
