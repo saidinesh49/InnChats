@@ -1,7 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FriendService } from 'src/app/services/friend-service.service';
 import { AuthService } from 'src/app/services/auth-service.service';
-import { Trie } from 'src/app/Interfaces/search.interface';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
@@ -13,8 +12,6 @@ export class AddUserDialogComponent implements OnInit {
   searchTermUsername: string = '';
   allUsers: any[] = [];
   filteredUsers: any[] = [];
-
-  trie = new Trie();
 
   constructor(
     private friendService: FriendService,
@@ -31,11 +28,6 @@ export class AddUserDialogComponent implements OnInit {
       console.log('users contains:', users);
       this.allUsers = users;
       // this.filteredUsers = users;
-
-      this.trie.clearAll();
-      users.forEach((u: any) => {
-        this.trie.insert(u);
-      });
     });
   }
 
@@ -44,7 +36,11 @@ export class AddUserDialogComponent implements OnInit {
     if (!q) {
       this.filteredUsers = [];
     } else {
-      this.filteredUsers = this.trie.search(q);
+      this.filteredUsers = this.allUsers.filter(
+        (friend) =>
+          friend?.username?.toLowerCase().startsWith(q) ||
+          friend?.fullName?.toLowerCase().startsWith(q)
+      );
     }
   }
 
@@ -54,8 +50,6 @@ export class AddUserDialogComponent implements OnInit {
       this.friendService.refreshFriendsListIfNeeded();
       this.filteredUsers = this.filteredUsers.filter((u) => u._id !== userId);
       this.allUsers = this.allUsers.filter((u) => u._id !== userId);
-      this.trie.clearAll();
-      this.allUsers.forEach((u: any) => this.trie.insert(u));
     });
   }
 
