@@ -5,6 +5,8 @@ import {
   ViewChild,
   AfterViewChecked,
   AfterViewInit,
+  Output,
+  EventEmitter,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { friend } from 'src/app/Interfaces/friend.interface';
@@ -22,6 +24,7 @@ import { WebsocketService } from 'src/app/services/websocket.service';
 })
 export class ChatsComponent implements OnInit, AfterViewChecked, AfterViewInit {
   @ViewChild('chatMessagesContainer') chatMessagesContainer!: ElementRef;
+  @Output() recentChatUpdate = new EventEmitter<string>();
 
   userData!: any;
   friendsList!: any;
@@ -246,6 +249,7 @@ export class ChatsComponent implements OnInit, AfterViewChecked, AfterViewInit {
             this.messages.push(data?.data?.newMessage);
           }
           this.scrollToBottomIfNotScrolled();
+          this.recentChatUpdate.emit(this.selectedUser?._id);
         },
         error: (error) => {
           console.error('Error sending message:', error);

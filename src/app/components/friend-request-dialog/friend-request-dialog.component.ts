@@ -31,17 +31,17 @@ export class FriendRequestDialogComponent implements OnInit {
     });
   }
 
-  loadUpdatedFriendsList() {
-    this.friendService.getFriendsListFromServer().subscribe({
-      next: (data) => {
-        console.log('Friends list request data is:', data?.data);
-        this.friendService.setFriendsList(data?.data?.friends);
-      },
-      error: (error) => {
-        console.log('Error while fetching friendsList:', error);
-      },
-    });
-  }
+  // loadUpdatedFriendsList() {
+  //   this.friendService.getFriendsListFromServer(null, 0, true).subscribe({
+  //     next: (data) => {
+  //       console.log('Friends list request data is:', data?.data);
+  //       this.friendService.setFriendsList(data?.data?.friends);
+  //     },
+  //     error: (error) => {
+  //       console.log('Error while fetching friendsList:', error);
+  //     },
+  //   });
+  // }
 
   acceptRequest(friendId: string) {
     this.friendService.acceptUserReceivedRequest(friendId).subscribe({
@@ -49,7 +49,6 @@ export class FriendRequestDialogComponent implements OnInit {
         this.receivedRequests = this.receivedRequests.filter(
           (r) => r._id !== friendId
         );
-        this.loadUpdatedFriendsList();
       },
       error: (err) => console.error('Error accepting request', err),
     });

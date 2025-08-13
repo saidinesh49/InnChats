@@ -9,18 +9,58 @@ import { FriendRequest } from "../models/friendRequest.model.js";
 import mongoose from "mongoose";
 
 const getFriendsList = asyncHandler(async (req, res) => {
-  console.log("get friendslist called", req?.user);
-  const friends = await FriendsList.findOne({ owner: req?.user?._id }).populate(
-    "friends",
+  const { limit = 15, beforeFriendId, bringAll = false } = req.query;
+  const userId = req?.user?._id;
+
+  const friendsList = await FriendsList.findOne({ owner: userId });
+
+  if (!friendsList || !friendsList.friends.length) {
+    return res
+      .status(200)
+      .json(new ApiResponse(200, { friends: [] }, "No friends found"));
+  }
+
+  let friendsIds = friendsList.friends.map((id) => id.toString());
+
+  // If bringAll is true, return all friends
+  if (bringAll === "true") {
+    const allFriends = await User.find(
+      { _id: { $in: friendsIds } },
+      "-password -refreshToken"
+    );
+    console.log("all friendslist is:", allFriends);
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, { friends: allFriends }, "All friends fetched")
+      );
+  }
+
+  // Apply pagination logic
+  let startIndex = 0;
+  if (beforeFriendId) {
+    const index = friendsIds.indexOf(beforeFriendId);
+    if (index > -1) startIndex = index + 1;
+  }
+
+  const paginatedIds = friendsIds.slice(
+    startIndex,
+    startIndex + parseInt(limit)
+  );
+  const paginatedFriends = await User.find(
+    { _id: { $in: paginatedIds } },
     "-password -refreshToken"
   );
+
+  console.log("Paginated friendslist is:", paginatedFriends);
+
   return res
     .status(200)
     .json(
       new ApiResponse(
         200,
-        { friends: friends?.friends },
-        "Friends list fetched successfully"
+        { friends: paginatedFriends },
+        "Friends list fetched"
       )
     );
 });

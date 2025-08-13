@@ -1,8 +1,13 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, Subject, debounceTime } from 'rxjs';
 import { friend } from 'src/app/Interfaces/friend.interface';
-import { Trie } from 'src/app/Interfaces/search.interface';
 import { AuthService } from 'src/app/services/auth-service.service';
 import { FriendService } from 'src/app/services/friend-service.service';
 import { HashService } from 'src/app/services/hash-service.service';
@@ -19,14 +24,21 @@ export class LeftSideBarComponent implements OnInit {
   userData!: any;
   friendsList: friend[] = [];
   selectedUser: friend | null = null;
+
   term!: string;
-
-  suggestionList: friend[] = [];
-  showPopup = false;
-
-  trie = new Trie();
+  suggestionList: friend[] | undefined | null = [];
 
   @Output() addFriendEmiiter = new EventEmitter<void>();
+  @ViewChild('friendsListContainer') friendsListContainer!: ElementRef;
+
+  private userScrolled = false;
+  loadingFriends: boolean = false;
+  allFriendsFetched: boolean = false;
+
+  lastFriendId: string | null = null;
+  friendsLimit: number = 15;
+
+  private pendingLoadFriendsList = false;
 
   constructor(
     private authService: AuthService,
@@ -36,48 +48,111 @@ export class LeftSideBarComponent implements OnInit {
     private router: Router,
     private activatedRouter: ActivatedRoute
   ) {
-    this.friendService.getFriendsListFromServer().subscribe({
-      next: (data) => {
-        console.log('Friends list request data is:', data?.data);
-        this.friendService.setFriendsList(data?.data?.friends);
-      },
-      error: (error) => {
-        console.log('Error while fetching friendsList:', error);
-      },
+    this.authService.userData.subscribe((userData) => {
+      this.userData = userData;
+      console.log('userdata at leftbar is:', userData);
+      this.pendingLoadFriendsList = true;
     });
+  }
+
+  calculateFriendsLimit() {
+    const container = this.friendsListContainer?.nativeElement;
+    if (!container) return;
+
+    const containerHeight = container.clientHeight;
+    const averageFriendItemHeight = 70;
+
+    const estimatedLimit = Math.floor(
+      containerHeight / averageFriendItemHeight
+    );
+    this.friendsLimit = estimatedLimit;
+
+    console.log('Estimated friends limit:', this.friendsLimit);
+  }
+  onScrollFriendsList() {
+    this.loadingFriends = true;
+
+    this.friendService
+      .getFriendsListFromServer(this.lastFriendId, this.friendsLimit, false)
+      .subscribe({
+        next: (data: any) => {
+          const newFriends = data?.data?.friends || [];
+
+          if (newFriends.length > 0) {
+            this.lastFriendId = newFriends[newFriends.length - 1]._id;
+          }
+
+          if (newFriends.length < this.friendsLimit) {
+            this.allFriendsFetched = true;
+          }
+
+          this.friendService.setFriendsList(newFriends, true);
+          this.loadingFriends = false;
+        },
+        error: (err) => {
+          console.error('Error fetching friends list:', err);
+          this.loadingFriends = false;
+        },
+      });
   }
 
   ngOnInit() {
     this.friendService.friendsList.subscribe((data) => {
       this.friendsList = data || [];
       console.log('Friendlist at leftside bar is:', data);
-      this.trie.clearAll();
-      this.friendsList.forEach((friend) => this.trie.insert(friend));
-      this.suggestionList = [...this.friendsList]; // default to all friends
-    });
-
-    this.authService.userData.subscribe((userData) => {
-      this.userData = userData;
-      console.log('userdata at leftbar is:', userData);
+      this.suggestionList = [...this.friendsList];
     });
   }
 
-  onSearchTermChange() {
+  ngAfterViewInit() {
+    this.calculateFriendsLimit();
+
+    if (this.pendingLoadFriendsList) {
+      this.loadInitialFriends();
+      this.pendingLoadFriendsList = false;
+    }
+
+    // if (this.friendsListContainer) {
+    //   this.friendsListContainer.nativeElement.addEventListener(
+    //     'scroll',
+    //     (event: any) => this.onFriendsScroll(event)
+    //   );
+    // }
+  }
+
+  loadInitialFriends() {
+    this.lastFriendId = null;
+    this.allFriendsFetched = false;
+    this.onScrollFriendsList();
+  }
+
+  onFriendsScroll(event: any) {
+    const el = event.target;
+    const thresholdFromBottom = 50;
+
+    const reachedBottom =
+      el.scrollHeight - el.scrollTop - el.clientHeight <= thresholdFromBottom;
+
+    if (reachedBottom && !this.allFriendsFetched && !this.loadingFriends) {
+      this.onScrollFriendsList();
+    }
+  }
+
+  onSearchTermChange = async () => {
     const term = this.term.trim().toLowerCase();
 
     if (!term) {
       this.suggestionList = this.friendsList;
       return;
     }
-    this.suggestionList = this.trie.search(term);
-  }
+    this.suggestionList = this.friendService.friendsList?.value?.filter(
+      (friend) =>
+        friend?.username?.toLowerCase()?.startsWith(term) ||
+        friend?.fullName?.toLowerCase()?.startsWith(term)
+    );
+  };
 
   toggleFriend(friendId: string) {
-    // this.friendService.toggleFriend(username);
-    // this.friendService.selectedUser.subscribe((user) => {
-    //   console.log(user);
-    //   this.selectedUser = user;
-    // });
     let chatId = this.hashService.encryptData([
       this.authService.userData?.value?._id,
       friendId,

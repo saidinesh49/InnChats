@@ -1,5 +1,5 @@
 import { Injectable, OnInit } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, tap } from 'rxjs';
 import { friend } from '../Interfaces/friend.interface';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from './auth-service.service';
@@ -11,6 +11,11 @@ export class FriendService {
   private apiUrl: string = 'https://innchats.onrender.com'; //changes needed
   friendsList = new BehaviorSubject<friend[] | null>(null);
   selectedUser = new BehaviorSubject<friend | null>(null);
+  lastFetchedFriendId: string | null = null;
+  fetchedFriendCount = 0;
+  friendsLimit = 3;
+  allFriendsFetched = false;
+  loadingFriends = false;
 
   dummyData: friend[] | any = [
     {
@@ -79,20 +84,55 @@ export class FriendService {
     }
   }
 
-  setFriendsList(friends: friend[] | any) {
-    this.friendsList.next(friends);
+  setFriendsList(friends: friend[], append: boolean = false) {
+    const existing = this.friendsList.value || [];
+
+    const newFriends = friends.filter(
+      (f) => !existing.some((e) => e._id === f._id)
+    );
+
+    const updated = append ? [...existing, ...newFriends] : newFriends;
+    this.friendsList.next(updated);
+
+    if (updated.length > 0) {
+      this.lastFetchedFriendId = updated[updated.length - 1]._id;
+    }
+
+    if (friends.length < this.friendsLimit) {
+      this.allFriendsFetched = true;
+    }
   }
 
-  getFriendsListFromServer() {
+  getFriendsListFromServer(
+    beforeFriendId: string | null,
+    limit: number,
+    bringAll: boolean = false
+  ) {
     const accessToken = this.authService.getCookie('accessToken');
-    return this.http.get<{ data: any }>(
-      `${this.apiUrl}/friendsList/friends-list`,
-      {
+    console.log('Estimated limit is:', limit);
+    const params: any = {
+      limit,
+      bringAll,
+    };
+    if (beforeFriendId) {
+      params.beforeFriendId = beforeFriendId;
+    }
+
+    return this.http
+      .get<{ data: any }>(`${this.apiUrl}/friendsList/friends-list`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-      }
-    );
+        params,
+      })
+      .pipe(
+        tap((data: any) => {
+          console.log(
+            'Fetched friendsList from server is:',
+            data?.data?.friends
+          );
+        })
+      );
   }
 
   addToFriendsList(newFriendId: string) {
@@ -143,18 +183,56 @@ export class FriendService {
     });
   }
 
-  acceptUserReceivedRequest(friendId: string) {
+  refreshFriendsListIfNeeded() {
+    if (!this.allFriendsFetched) {
+      console.log('Friends list is not fully fetched. Skipping refresh.');
+      return;
+    }
+
     const accessToken = this.authService.getCookie('accessToken');
-    return this.http.post(
-      `${this.apiUrl}/friendsList/requests`,
-      {
-        friendId: friendId,
-      },
-      {
+    const params: any = {
+      limit: this.friendsLimit,
+      beforeFriendId: this.lastFetchedFriendId,
+      bringAll: false,
+    };
+
+    this.http
+      .get<{ data: any }>(`${this.apiUrl}/friendsList/friends-list`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-      }
-    );
+        params,
+      })
+      .subscribe({
+        next: (res) => {
+          const newFriends = res?.data?.friends || [];
+          if (newFriends.length > 0) {
+            this.setFriendsList(newFriends, true);
+            console.log('Appended new friends to list.');
+          } else {
+            console.log('No new friends to append.');
+          }
+        },
+        error: (err) => {
+          console.error('Error refreshing friends list:', err);
+        },
+      });
+  }
+
+  acceptUserReceivedRequest(friendId: string) {
+    const accessToken = this.authService.getCookie('accessToken');
+    return this.http
+      .post(
+        `${this.apiUrl}/friendsList/requests`,
+        { friendId },
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      )
+      .pipe(
+        tap(() => {
+          this.refreshFriendsListIfNeeded();
+        })
+      );
   }
 }

@@ -10,7 +10,6 @@
     <strong [ngStyle]="{ marginTop: '24px', fontSize: '20px' }"
       >InnChats</strong
     >
-
     <button
       mat-icon-button
       (click)="openRequestsDialog()"
@@ -47,11 +46,13 @@
   </div>
 
   <div
+    #friendsListContainer
     *ngIf="suggestionList && suggestionList.length > 0; else noFriends"
+    (scroll)="onFriendsScroll($event)"
     [ngStyle]="{ overflowY: 'auto', flexGrow: '1', width: '100%' }"
   >
     <div
-      *ngFor="let friend of suggestionList; let i = index"
+      *ngFor="let friend of suggestionList"
       class="friend-item"
       [ngClass]="{ selected: selectedUser?.username === friend.username }"
       (click)="toggleFriend(friend._id)"
@@ -62,6 +63,12 @@
         [ngStyle]="{ borderRadius: '50%', width: '15%', height: '15%' }"
       />
       <span class="friend-name">{{ friend?.fullName }}</span>
+    </div>
+    <div
+      *ngIf="loadingFriends"
+      style="text-align: center; padding: 10px; color: gray"
+    >
+      Loading more friends...
     </div>
   </div>
 

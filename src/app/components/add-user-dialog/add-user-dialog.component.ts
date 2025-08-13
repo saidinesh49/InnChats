@@ -51,15 +51,7 @@ export class AddUserDialogComponent implements OnInit {
   addFriend(userId: string) {
     this.friendService.addToFriendsList(userId).subscribe((data) => {
       console.log('Data after adding new friend:', data?.data);
-      this.friendService.getFriendsListFromServer().subscribe({
-        next: (data) => {
-          console.log('Friends list request data is:', data?.data);
-          this.friendService.setFriendsList(data?.data?.friends);
-        },
-        error: (error) => {
-          console.log('Error while fetching friendsList:', error);
-        },
-      });
+      this.friendService.refreshFriendsListIfNeeded();
       this.filteredUsers = this.filteredUsers.filter((u) => u._id !== userId);
       this.allUsers = this.allUsers.filter((u) => u._id !== userId);
       this.trie.clearAll();
