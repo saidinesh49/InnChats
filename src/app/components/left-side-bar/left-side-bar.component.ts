@@ -141,15 +141,26 @@ export class LeftSideBarComponent implements OnInit {
   onSearchTermChange = async () => {
     const term = this.term.trim().toLowerCase();
 
-    if (!term) {
-      this.suggestionList = this.friendsList;
-      return;
-    }
-    this.suggestionList = this.friendService.friendsList?.value?.filter(
-      (friend) =>
-        friend?.username?.toLowerCase()?.startsWith(term) ||
-        friend?.fullName?.toLowerCase()?.startsWith(term)
-    );
+    this.friendService.getFriendsListFromServer(null, 0, true).subscribe({
+      next: (data: any) => {
+        Promise.resolve(
+          this.friendService.setFriendsList(data?.data?.friends)
+        ).then(() => {
+          if (!term) {
+            this.suggestionList = this.friendsList;
+            return;
+          }
+          this.suggestionList = this.friendService.friendsList?.value?.filter(
+            (friend) =>
+              friend?.username?.toLowerCase()?.startsWith(term) ||
+              friend?.fullName?.toLowerCase()?.startsWith(term)
+          );
+        });
+      },
+      error: (err) => {
+        console.log('Error fetching all users from server for search:', err);
+      },
+    });
   };
 
   toggleFriend(friendId: string) {
