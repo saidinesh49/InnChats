@@ -71,7 +71,17 @@ const loadMessages = asyncHandler(async (req, res) => {
 const storeMessage = asyncHandler(async (req, res) => {
   const { roomId, senderId, message, isEncrypted = true } = req.body;
 
-  const decryptedData = await decryptData(roomId);
+  if (!(roomId && senderId && message)) {
+    throw new ApiError(400, "RoomId, senderId and message are required");
+  }
+
+  let decryptedData;
+  if (isEncrypted) {
+    decryptedData = await decryptData(roomId);
+  } else {
+    decryptedData = roomId;
+  }
+
   const users = decryptedData.split("(_)");
 
   if (
