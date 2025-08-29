@@ -15,10 +15,23 @@ const checkFriendship = async (user1_Id, user2_Id) => {
 };
 
 const loadMessages = asyncHandler(async (req, res) => {
-  const { roomId, beforeMessageId = null, limit = 15 } = req.body;
+  const {
+    roomId,
+    beforeMessageId = null,
+    limit = 15,
+    isEncrypted = true,
+  } = req.body;
+  console.log("Loading messages started", req);
+
   if (!roomId) throw new ApiError(400, "roomId is required");
 
-  const decryptedData = decryptData(roomId);
+  let decryptedData;
+  if (isEncrypted) {
+    decryptedData = await decryptData(roomId);
+  } else {
+    decryptedData = roomId;
+  }
+
   const users = decryptedData.split("(_)");
 
   if (users[0] != req?.user?._id && users[1] != req?.user?._id) {
@@ -56,7 +69,7 @@ const loadMessages = asyncHandler(async (req, res) => {
 });
 
 const storeMessage = asyncHandler(async (req, res) => {
-  const { roomId, senderId, message } = req.body;
+  const { roomId, senderId, message, isEncrypted = true } = req.body;
 
   const decryptedData = await decryptData(roomId);
   const users = decryptedData.split("(_)");
