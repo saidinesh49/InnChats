@@ -1,0 +1,15 @@
+{
+	"version": 2,
+	"public": true,
+	"builds": [{ "src": "package.json", "use": "@vercel/angular" }],
+	"routes": [
+		{
+			"src": "/(robots\\.txt|sitemap\\.xml|google[a-zA-Z0-9_-]+\\.html)",
+			"dest": "/$1"
+		},
+		{
+			"src": "/.*",
+			"dest": "/index.html"
+		}
+	]
+}
