@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /*?chatId=
+Allow: /
+
+Sitemap: https://innchats.vercel.app/sitemap.xml
