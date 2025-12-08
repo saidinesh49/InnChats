@@ -1,16 +1,16 @@
 {
-	"version": 2,
-	"buildCommand": "npm run build",
-	"outputDirectory": "dist/inn-chats",
-	"framework": null,
-	"routes": [
-		{
-			"src": "/(robots\\.txt|sitemap\\.xml)",
-			"dest": "/$1"
-		},
-		{
-			"src": "/.*",
-			"dest": "/index.html"
-		}
-	]
+  "version": 2,
+  "buildCommand": "npm run build -- --configuration production",
+  "outputDirectory": "dist/inn-chats",
+  "framework": "angular",
+  "routes": [
+    {
+      "src": "/(robots\\.txt|sitemap\\.xml)",
+      "dest": "/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
 }
